@@ -43,11 +43,6 @@ unit_test:
     - php artisan migrate
   script:
     - vendor/bin/pest
-  rules:
-    # Hanya jalankan test di feature branch, dev, dan main
-    - if: '$CI_COMMIT_BRANCH =~ /^feature\//'
-    - if: '$CI_COMMIT_BRANCH == "dev"'
-    - if: '$CI_COMMIT_BRANCH == "main"'
 
 create_mr_to_dev:
   stage: create-mr
