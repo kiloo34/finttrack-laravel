@@ -22,7 +22,7 @@ secret_detection:
 
 unit_test:
   stage: test
-  image: php:8.3-cli
+  image: php:8.4-cli
   variables:
     DB_CONNECTION: sqlite
     DB_DATABASE: database/database.sqlite
