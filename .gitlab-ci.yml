@@ -6,14 +6,69 @@
 # Note that environment variables can be set in several places
 # See https://docs.gitlab.com/ci/variables/#cicd-variable-precedence
 stages:
-- test
-- secret-detection
+  - test
+  - secret-detection
+  - create-mr
+
 sast:
   stage: test
 include:
-- template: Security/SAST.gitlab-ci.yml
-- template: Security/Secret-Detection.gitlab-ci.yml
+  - template: Security/SAST.gitlab-ci.yml
+  - template: Security/Secret-Detection.gitlab-ci.yml
 variables:
   SECRET_DETECTION_ENABLED: 'true'
 secret_detection:
   stage: secret-detection
+
+unit_test:
+  stage: test
+  image: php:8.3-cli
+  variables:
+    DB_CONNECTION: sqlite
+    DB_DATABASE: database/database.sqlite
+    APP_ENV: testing
+    APP_KEY: base64:2fl+Ktvkfl+Fuz4Qp/A75G2RTiWVA/ZoKZvp6fiiM10=
+    CACHE_DRIVER: array
+    SESSION_DRIVER: array
+    QUEUE_CONNECTION: sync
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - vendor/
+  before_script:
+    - apt-get update -yqq && apt-get install -yqq git sqlite3 libsqlite3-dev unzip
+    - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+    - composer install --no-interaction --prefer-dist --optimize-autoloader
+    - touch database/database.sqlite
+    - php artisan migrate
+  script:
+    - vendor/bin/pest
+  rules:
+    # Hanya jalankan test di feature branch, dev, dan main
+    - if: '$CI_COMMIT_BRANCH =~ /^feature\//'
+    - if: '$CI_COMMIT_BRANCH == "dev"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+create_mr_to_dev:
+  stage: create-mr
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache curl jq
+  script:
+    - |
+      echo "Mengecek apakah Merge Request sudah ada..."
+      EXISTING_MR=$(curl -s --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests?state=opened&source_branch=${CI_COMMIT_BRANCH}&target_branch=dev")
+      if [ "$(echo $EXISTING_MR | jq 'length')" -eq "0" ]; then
+        echo "Membuat Merge Request ke branch dev..."
+        curl -X POST "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests" \
+             --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
+             --data "source_branch=${CI_COMMIT_BRANCH}" \
+             --data "target_branch=dev" \
+             --data "title=Merge ${CI_COMMIT_BRANCH} to dev" \
+             --data "remove_source_branch=true"
+      else
+        echo "Merge Request sudah ada."
+      fi
+  rules:
+    # Hanya buat MR otomatis dari feature branch
+    - if: '$CI_COMMIT_BRANCH =~ /^feature\//'
