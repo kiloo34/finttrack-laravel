@@ -36,9 +36,11 @@ unit_test:
     paths:
       - vendor/
   before_script:
-    - apt-get update -yqq && apt-get install -yqq git sqlite3 libsqlite3-dev unzip
+    - apt-get update -yqq && apt-get install -yqq git sqlite3 libsqlite3-dev unzip nodejs npm
     - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
     - composer install --no-interaction --prefer-dist --optimize-autoloader
+    - npm ci
+    - npm run build
     - touch database/database.sqlite
     - php artisan migrate
   script:
