@@ -11,11 +11,11 @@ use Illuminate\Validation\ValidationException;
 test('transfer fails if from_account and to_account belong to different users', function () {
     $userA = User::factory()->create();
     $accountA = Account::factory()->create(['user_id' => $userA->id]);
-    
+
     $userB = User::factory()->create();
     $accountB = Account::factory()->create(['user_id' => $userB->id]);
 
-    expect(fn() => Transfer::factory()->create([
+    expect(fn () => Transfer::factory()->create([
         'from_account_id' => $accountA->id,
         'to_account_id' => $accountB->id,
     ]))->toThrow(ValidationException::class);

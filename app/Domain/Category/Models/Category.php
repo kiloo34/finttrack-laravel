@@ -4,6 +4,7 @@ namespace App\Domain\Category\Models;
 
 use App\Domain\User\Models\User;
 use Database\Factories\CategoryFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,7 +16,7 @@ class Category extends Model
         return CategoryFactory::new();
     }
 
-    /** @use HasFactory<\Database\Factories\CategoryFactory> */
+    /** @use HasFactory<CategoryFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -58,24 +59,24 @@ class Category extends Model
     /**
      * Scope: user-owned categories AND system categories.
      *
-     * @param \Illuminate\Database\Eloquent\Builder<$this> $query
-     * @return \Illuminate\Database\Eloquent\Builder<$this>
+     * @param  Builder<$this>  $query
+     * @return Builder<$this>
      */
-    public function scopeAvailableFor(\Illuminate\Database\Eloquent\Builder $query, int $userId): \Illuminate\Database\Eloquent\Builder
+    public function scopeAvailableFor(Builder $query, int $userId): Builder
     {
         return $query->where(function ($q) use ($userId) {
             $q->where('user_id', $userId)
-              ->orWhere('is_system', true);
+                ->orWhere('is_system', true);
         });
     }
 
     /**
      * Scope: only user-owned categories (excluding system categories).
      *
-     * @param \Illuminate\Database\Eloquent\Builder<$this> $query
-     * @return \Illuminate\Database\Eloquent\Builder<$this>
+     * @param  Builder<$this>  $query
+     * @return Builder<$this>
      */
-    public function scopeForUser(\Illuminate\Database\Eloquent\Builder $query, int $userId): \Illuminate\Database\Eloquent\Builder
+    public function scopeForUser(Builder $query, int $userId): Builder
     {
         return $query->where('user_id', $userId);
     }
@@ -83,10 +84,10 @@ class Category extends Model
     /**
      * Scope: only system categories (shared across all users).
      *
-     * @param \Illuminate\Database\Eloquent\Builder<$this> $query
-     * @return \Illuminate\Database\Eloquent\Builder<$this>
+     * @param  Builder<$this>  $query
+     * @return Builder<$this>
      */
-    public function scopeSystem(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
+    public function scopeSystem(Builder $query): Builder
     {
         return $query->whereNull('user_id')->where('is_system', true);
     }

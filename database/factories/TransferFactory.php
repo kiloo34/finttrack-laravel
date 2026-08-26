@@ -26,12 +26,13 @@ class TransferFactory extends Factory
             'to_account_id' => function (array $attributes) {
                 /** @var Account $fromAccount */
                 $fromAccount = Account::find($attributes['from_account_id']);
+
                 return Account::factory()->create(['user_id' => $fromAccount->user_id])->id;
             },
-            'amount'          => $this->faker->randomFloat(2, 10000, 5_000_000),
-            'currency'        => 'IDR',
+            'amount' => $this->faker->randomFloat(2, 10000, 5_000_000),
+            'currency' => 'IDR',
             'transaction_date' => $this->faker->dateTimeBetween('-1 year', 'now')->format('Y-m-d'),
-            'description'     => $this->faker->optional()->sentence(),
+            'description' => $this->faker->optional()->sentence(),
         ];
     }
 }

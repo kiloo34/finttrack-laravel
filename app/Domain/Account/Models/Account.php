@@ -2,9 +2,9 @@
 
 namespace App\Domain\Account\Models;
 
-use App\Domain\User\Models\User;
 use App\Domain\Ledger\Models\LedgerEntry;
 use App\Domain\Transaction\Models\Transaction;
+use App\Domain\User\Models\User;
 use Database\Factories\AccountFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -19,7 +19,7 @@ class Account extends Model
         return AccountFactory::new();
     }
 
-    /** @use HasFactory<\Database\Factories\AccountFactory> */
+    /** @use HasFactory<AccountFactory> */
     use HasFactory, SoftDeletes;
 
     protected $fillable = [

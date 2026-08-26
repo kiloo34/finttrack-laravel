@@ -8,7 +8,7 @@ use Database\Factories\TransferFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Validation\ValidationException;
 
 class Transfer extends Model
 {
@@ -17,7 +17,7 @@ class Transfer extends Model
         return TransferFactory::new();
     }
 
-    /** @use HasFactory<\Database\Factories\TransferFactory> */
+    /** @use HasFactory<TransferFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -50,7 +50,7 @@ class Transfer extends Model
             $toAccount = $transfer->toAccount()->first();
 
             if ($fromAccount && $toAccount && $fromAccount->user_id !== $toAccount->user_id) {
-                throw \Illuminate\Validation\ValidationException::withMessages([
+                throw ValidationException::withMessages([
                     'to_account_id' => 'Transfer can only be made between accounts belonging to the same user.',
                 ]);
             }

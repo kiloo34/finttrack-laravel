@@ -8,7 +8,7 @@ use App\Domain\User\Models\User;
 // --- AuditLog Model Tests ---
 
 test('audit log is immutable (no updated_at)', function () {
-    $log = new AuditLog();
+    $log = new AuditLog;
 
     expect($log->timestamps)->toBeFalse();
 });
@@ -18,12 +18,12 @@ test('audit log casts old_values and new_values as array', function () {
     $account = Account::factory()->create(['user_id' => $user->id]);
 
     $log = AuditLog::create([
-        'user_id'        => $user->id,
-        'action'         => 'account.updated',
+        'user_id' => $user->id,
+        'action' => 'account.updated',
         'auditable_type' => Account::class,
-        'auditable_id'   => $account->id,
-        'old_values'     => ['name' => 'Old Name'],
-        'new_values'     => ['name' => 'New Name'],
+        'auditable_id' => $account->id,
+        'old_values' => ['name' => 'Old Name'],
+        'new_values' => ['name' => 'New Name'],
     ]);
 
     expect($log->old_values)->toBeArray()->toHaveKey('name', 'Old Name');
@@ -35,10 +35,10 @@ test('audit log belongs to a user', function () {
     $account = Account::factory()->create(['user_id' => $user->id]);
 
     $log = AuditLog::create([
-        'user_id'        => $user->id,
-        'action'         => 'account.created',
+        'user_id' => $user->id,
+        'action' => 'account.created',
         'auditable_type' => Account::class,
-        'auditable_id'   => $account->id,
+        'auditable_id' => $account->id,
     ]);
 
     expect($log->user)->toBeInstanceOf(User::class);
@@ -53,7 +53,7 @@ test('audit service logs an action for an authenticated user', function () {
 
     $this->actingAs($user);
 
-    $service = new AuditService();
+    $service = new AuditService;
     $log = $service->log(
         'account.created',
         $account,
@@ -76,7 +76,7 @@ test('audit service records old and new values on update', function () {
 
     $this->actingAs($user);
 
-    $service = new AuditService();
+    $service = new AuditService;
     $log = $service->log(
         'account.updated',
         $account,
@@ -93,11 +93,11 @@ test('audit logs are append-only and cannot be modified via normal flows', funct
     $account = Account::factory()->create(['user_id' => $user->id]);
 
     $log = AuditLog::create([
-        'user_id'        => $user->id,
-        'action'         => 'account.created',
+        'user_id' => $user->id,
+        'action' => 'account.created',
         'auditable_type' => Account::class,
-        'auditable_id'   => $account->id,
-        'new_values'     => ['name' => 'My Wallet'],
+        'auditable_id' => $account->id,
+        'new_values' => ['name' => 'My Wallet'],
     ]);
 
     $originalAction = $log->action;

@@ -17,8 +17,8 @@ test('account cannot be deleted if it has transactions', function () {
     Transaction::factory()->create(['account_id' => $account->id]);
 
     // Attempting to delete the account should throw an exception
-    expect(fn() => $account->delete())->toThrow(\Exception::class, 'Account cannot be deleted because it has related transactions.');
-    
+    expect(fn () => $account->delete())->toThrow(Exception::class, 'Account cannot be deleted because it has related transactions.');
+
     // Account should still exist
     expect($account->fresh())->not->toBeNull();
 });
@@ -54,7 +54,7 @@ test('account balance service calculates historical balance correctly', function
         ],
     ]);
 
-    $service = new AccountBalanceService();
+    $service = new AccountBalanceService;
 
     // Balance 7 days ago: Only the 1000 credit should count. (1000)
     $historicalDate1 = Carbon::now()->subDays(7);

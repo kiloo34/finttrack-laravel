@@ -26,7 +26,7 @@ test('availableFor scope returns system categories and user specific categories'
         ->toContain($systemCategory->id)
         ->toContain($categoryA->id)
         ->not->toContain($categoryB->id);
-    
+
     expect($availableForA->count())->toBeGreaterThanOrEqual(2);
 });
 
@@ -34,9 +34,9 @@ test('system categories cannot be deleted or modified', function () {
     $systemCategory = Category::factory()->system()->create();
 
     // Attempting to delete should throw an exception
-    expect(fn() => $systemCategory->delete())->toThrow(\Exception::class, 'System categories cannot be deleted.');
+    expect(fn () => $systemCategory->delete())->toThrow(Exception::class, 'System categories cannot be deleted.');
 
     // Attempting to modify name should throw an exception
     $systemCategory->name = 'Hacked Name';
-    expect(fn() => $systemCategory->save())->toThrow(\Exception::class, 'System categories cannot be modified.');
+    expect(fn () => $systemCategory->save())->toThrow(Exception::class, 'System categories cannot be modified.');
 });

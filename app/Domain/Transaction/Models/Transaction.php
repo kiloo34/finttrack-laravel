@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Validation\ValidationException;
 
 class Transaction extends Model
 {
@@ -19,7 +20,7 @@ class Transaction extends Model
         return TransactionFactory::new();
     }
 
-    /** @use HasFactory<\Database\Factories\TransactionFactory> */
+    /** @use HasFactory<TransactionFactory> */
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
@@ -51,9 +52,9 @@ class Transaction extends Model
                 $category = $transaction->category()->first();
                 /** @var Account|null $account */
                 $account = $transaction->account()->first();
-                
+
                 if ($category && $account && ! $category->is_system && $category->user_id !== $account->user_id) {
-                    throw \Illuminate\Validation\ValidationException::withMessages([
+                    throw ValidationException::withMessages([
                         'category_id' => 'The category is invalid or belongs to another user.',
                     ]);
                 }
