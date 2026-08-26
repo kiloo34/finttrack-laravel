@@ -112,7 +112,8 @@ auto_merge_dev_to_qa:
              --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
              --data "source_branch=dev" \
              --data "target_branch=qa" \
-             --data "title=Auto-Merge dev to qa")
+             --data "title=Auto-Merge dev to qa" \
+             --data "remove_source_branch=false")
         MR_IID=$(echo $CREATE_MR_RES | jq -r '.iid')
       fi
       
@@ -148,7 +149,8 @@ scheduled_merge_qa_to_main:
              --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
              --data "source_branch=qa" \
              --data "target_branch=main" \
-             --data "title=Weekly Auto-Release qa to main")
+             --data "title=Weekly Auto-Release qa to main" \
+             --data "remove_source_branch=false")
         MR_IID=$(echo $CREATE_MR_RES | jq -r '.iid')
       fi
       
