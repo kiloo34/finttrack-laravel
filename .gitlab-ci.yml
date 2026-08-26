@@ -122,7 +122,13 @@ auto_merge_dev_to_qa:
         MERGE_RES=$(curl -s -X PUT "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests/${MR_IID}/merge" \
              --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
              --data "merge_when_pipeline_succeeds=true")
-        echo "Respon Merge: $MERGE_RES"
+        
+        if echo "$MERGE_RES" | grep -q '405\|406\|cannot be merged\|Method Not Allowed'; then
+             echo "Fallback: Opsi tunggu pipeline ditolak. Mencoba merge instan..."
+             MERGE_RES=$(curl -s -X PUT "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests/${MR_IID}/merge" \
+                  --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}")
+        fi
+        echo "Respon Merge Akhir: $MERGE_RES"
       else
         echo "Gagal membuat atau mengambil MR. Periksa error."
       fi
@@ -159,7 +165,13 @@ scheduled_merge_qa_to_main:
         MERGE_RES=$(curl -s -X PUT "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests/${MR_IID}/merge" \
              --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
              --data "merge_when_pipeline_succeeds=true")
-        echo "Respon Merge: $MERGE_RES"
+        
+        if echo "$MERGE_RES" | grep -q '405\|406\|cannot be merged\|Method Not Allowed'; then
+             echo "Fallback: Opsi tunggu pipeline ditolak. Mencoba merge instan..."
+             MERGE_RES=$(curl -s -X PUT "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests/${MR_IID}/merge" \
+                  --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}")
+        fi
+        echo "Respon Merge Akhir: $MERGE_RES"
       else
         echo "Gagal membuat atau mengambil MR. Periksa error."
       fi
