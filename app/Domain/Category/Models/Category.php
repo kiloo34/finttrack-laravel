@@ -29,9 +29,38 @@ class Category extends Model
         'is_system' => 'boolean',
     ];
 
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted(): void
+    {
+        static::updating(function (Category $category) {
+            if ($category->getOriginal('is_system') === true) {
+                throw new \Exception('System categories cannot be modified.');
+            }
+        });
+
+        static::deleting(function (Category $category) {
+            if ($category->is_system) {
+                throw new \Exception('System categories cannot be deleted.');
+            }
+        });
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Scope: user-owned categories AND system categories.
+     */
+    public function scopeAvailableFor(\Illuminate\Database\Eloquent\Builder $query, int $userId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where(function ($q) use ($userId) {
+            $q->where('user_id', $userId)
+              ->orWhere('is_system', true);
+        });
     }
 
     /**
