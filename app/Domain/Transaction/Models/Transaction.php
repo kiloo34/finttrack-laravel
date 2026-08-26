@@ -39,6 +39,30 @@ class Transaction extends Model
         'transaction_date' => 'date',
     ];
 
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (Transaction $transaction) {
+            if ($transaction->category_id) {
+                // We load the relations if they are not already loaded
+                $category = $transaction->category()->first();
+                $account = $transaction->account()->first();
+                
+                if ($category && $account && ! $category->is_system && $category->user_id !== $account->user_id) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'category_id' => 'The category is invalid or belongs to another user.',
+                    ]);
+                }
+            }
+        });
+
+        static::deleting(function (Transaction $transaction) {
+            $transaction->ledgerEntries()->delete(); // soft delete related ledger entries
+        });
+    }
+
     public function account(): BelongsTo
     {
         return $this->belongsTo(Account::class);
