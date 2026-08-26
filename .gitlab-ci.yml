@@ -143,4 +143,3 @@ scheduled_merge_qa_to_main:
       fi
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
->>>>>>> Stashed changes
