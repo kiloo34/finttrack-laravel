@@ -6,9 +6,28 @@
 # Note that environment variables can be set in several places
 # See https://docs.gitlab.com/ci/variables/#cicd-variable-precedence
 stages:
+  - code-quality
   - test
   - secret-detection
   - create-mr
+
+pint_style_check:
+  stage: code-quality
+  image: php:8.4-cli
+  before_script:
+    - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+    - composer install --no-interaction --prefer-dist --optimize-autoloader
+  script:
+    - vendor/bin/pint --test
+
+larastan_analysis:
+  stage: code-quality
+  image: php:8.4-cli
+  before_script:
+    - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+    - composer install --no-interaction --prefer-dist --optimize-autoloader
+  script:
+    - vendor/bin/phpstan analyse --memory-limit=2G
 
 sast:
   stage: test
