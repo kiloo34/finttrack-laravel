@@ -34,6 +34,45 @@ class Transfer extends Model
         'transaction_date' => 'date',
     ];
 
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (Transfer $transfer) {
+            // Ensure amount is always positive
+            $transfer->amount = abs((float) $transfer->amount);
+
+            // Ensure from_account and to_account belong to the same user
+            $fromAccount = $transfer->fromAccount()->first();
+            $toAccount = $transfer->toAccount()->first();
+
+            if ($fromAccount && $toAccount && $fromAccount->user_id !== $toAccount->user_id) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'to_account_id' => 'Transfer can only be made between accounts belonging to the same user.',
+                ]);
+            }
+        });
+
+        static::created(function (Transfer $transfer) {
+            // Create Debit entry for from_account
+            LedgerEntry::create([
+                'account_id' => $transfer->from_account_id,
+                'direction' => 'debit',
+                'amount' => $transfer->amount,
+                'currency' => $transfer->currency,
+            ]);
+
+            // Create Credit entry for to_account
+            LedgerEntry::create([
+                'account_id' => $transfer->to_account_id,
+                'direction' => 'credit',
+                'amount' => $transfer->amount,
+                'currency' => $transfer->currency,
+            ]);
+        });
+    }
+
     public function fromAccount(): BelongsTo
     {
         return $this->belongsTo(Account::class, 'from_account_id');

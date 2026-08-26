@@ -68,8 +68,9 @@ test('transfer does not affect total wealth', function () {
 // --- Atomicity Test ---
 
 test('transfer creation is atomic — rolls back on failure', function () {
-    $fromAccount = Account::factory()->create();
-    $toAccount = Account::factory()->create();
+    $user = User::factory()->create();
+    $fromAccount = Account::factory()->create(['user_id' => $user->id]);
+    $toAccount = Account::factory()->create(['user_id' => $user->id]);
     $amount = 250_000.00;
     $transferId = null;
 
