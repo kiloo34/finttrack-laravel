@@ -14,12 +14,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Account extends Model
 {
-    /** @use HasFactory<AccountFactory> */
     protected static function newFactory(): AccountFactory
     {
         return AccountFactory::new();
     }
 
+    /** @use HasFactory<\Database\Factories\AccountFactory> */
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
@@ -48,16 +48,25 @@ class Account extends Model
         });
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return HasMany<Transaction, $this>
+     */
     public function transactions(): HasMany
     {
         return $this->hasMany(Transaction::class);
     }
 
+    /**
+     * @return HasMany<LedgerEntry, $this>
+     */
     public function ledgerEntries(): HasMany
     {
         return $this->hasMany(LedgerEntry::class);

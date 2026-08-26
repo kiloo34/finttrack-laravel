@@ -24,6 +24,7 @@ class TransferFactory extends Factory
         return [
             'from_account_id' => Account::factory(),
             'to_account_id' => function (array $attributes) {
+                /** @var Account $fromAccount */
                 $fromAccount = Account::find($attributes['from_account_id']);
                 return Account::factory()->create(['user_id' => $fromAccount->user_id])->id;
             },

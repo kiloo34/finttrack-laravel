@@ -14,12 +14,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Transaction extends Model
 {
-    /** @use HasFactory<TransactionFactory> */
     protected static function newFactory(): TransactionFactory
     {
         return TransactionFactory::new();
     }
 
+    /** @use HasFactory<\Database\Factories\TransactionFactory> */
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
@@ -47,7 +47,9 @@ class Transaction extends Model
         static::creating(function (Transaction $transaction) {
             if ($transaction->category_id) {
                 // We load the relations if they are not already loaded
+                /** @var Category|null $category */
                 $category = $transaction->category()->first();
+                /** @var Account|null $account */
                 $account = $transaction->account()->first();
                 
                 if ($category && $account && ! $category->is_system && $category->user_id !== $account->user_id) {
@@ -63,16 +65,25 @@ class Transaction extends Model
         });
     }
 
+    /**
+     * @return BelongsTo<Account, $this>
+     */
     public function account(): BelongsTo
     {
         return $this->belongsTo(Account::class);
     }
 
+    /**
+     * @return BelongsTo<Category, $this>
+     */
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
 
+    /**
+     * @return HasMany<LedgerEntry, $this>
+     */
     public function ledgerEntries(): HasMany
     {
         return $this->hasMany(LedgerEntry::class);

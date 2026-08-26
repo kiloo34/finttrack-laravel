@@ -12,12 +12,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Transfer extends Model
 {
-    /** @use HasFactory<TransferFactory> */
     protected static function newFactory(): TransferFactory
     {
         return TransferFactory::new();
     }
 
+    /** @use HasFactory<\Database\Factories\TransferFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -44,7 +44,9 @@ class Transfer extends Model
             $transfer->amount = abs((float) $transfer->amount);
 
             // Ensure from_account and to_account belong to the same user
+            /** @var Account|null $fromAccount */
             $fromAccount = $transfer->fromAccount()->first();
+            /** @var Account|null $toAccount */
             $toAccount = $transfer->toAccount()->first();
 
             if ($fromAccount && $toAccount && $fromAccount->user_id !== $toAccount->user_id) {
@@ -73,11 +75,17 @@ class Transfer extends Model
         });
     }
 
+    /**
+     * @return BelongsTo<Account, $this>
+     */
     public function fromAccount(): BelongsTo
     {
         return $this->belongsTo(Account::class, 'from_account_id');
     }
 
+    /**
+     * @return BelongsTo<Account, $this>
+     */
     public function toAccount(): BelongsTo
     {
         return $this->belongsTo(Account::class, 'to_account_id');

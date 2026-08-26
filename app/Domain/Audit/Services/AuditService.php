@@ -15,8 +15,8 @@ class AuditService
      *
      * @param  string  $action  e.g. 'transaction.created', 'account.updated'
      * @param  Model   $model   The model being audited
-     * @param  array   $oldValues  Previous state (empty for creates)
-     * @param  array   $newValues  New state (empty for deletes)
+     * @param  array<string, mixed>   $oldValues  Previous state (empty for creates)
+     * @param  array<string, mixed>   $newValues  New state (empty for deletes)
      */
     public function log(
         string $action,

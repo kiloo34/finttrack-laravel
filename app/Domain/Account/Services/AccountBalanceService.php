@@ -14,6 +14,8 @@ class AccountBalanceService
      *
      * This derives balance from the immutable ledger.
      * Do NOT use accounts.current_balance as the sole source of truth.
+     *
+     * @return numeric-string
      */
     public function calculate(Account $account, ?\DateTimeInterface $asOfDate = null): string
     {
@@ -33,17 +35,22 @@ class AccountBalanceService
         $credits = $creditsQuery->sum('amount');
         $debits = $debitsQuery->sum('amount');
 
-        $balance = bcadd(
-            (string) $account->initial_balance,
-            bcsub((string) $credits, (string) $debits, 2),
-            2
-        );
+        /** @var numeric-string $initial */
+        $initial = (string) $account->initial_balance;
 
+        /** @var numeric-string $diff */
+        $diff = bcsub((string) $credits, (string) $debits, 2);
+
+        $balance = bcadd($initial, $diff, 2);
+
+        /** @var numeric-string $balance */
         return $balance;
     }
 
     /**
      * Calculate the total balance across all of a user's active accounts.
+     *
+     * @return numeric-string
      */
     public function totalForUser(int $userId): string
     {
@@ -51,12 +58,14 @@ class AccountBalanceService
             ->where('is_active', true)
             ->get();
 
+        /** @var numeric-string $total */
         $total = '0.00';
 
         foreach ($accounts as $account) {
             $total = bcadd($total, $this->calculate($account), 2);
         }
 
+        /** @var numeric-string $total */
         return $total;
     }
 }
