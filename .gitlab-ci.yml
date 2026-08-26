@@ -89,11 +89,8 @@ create_mr_to_dev:
         echo "Merge Request sudah ada."
       fi
   rules:
-<<<<<<< Updated upstream
     # Hanya buat MR otomatis dari branch feature, bugfix, chore, dan test
     - if: '$CI_COMMIT_BRANCH =~ /^(feature|bugfix|chore|test)\//'
-=======
-    - if: '$CI_COMMIT_BRANCH =~ /^feature\//'
 
 auto_merge_dev_to_qa:
   stage: create-mr
