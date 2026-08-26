@@ -37,6 +37,7 @@ unit_test:
       - vendor/
   before_script:
     - apt-get update -yqq && apt-get install -yqq git sqlite3 libsqlite3-dev unzip nodejs npm
+    - docker-php-ext-install bcmath
     - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
     - composer install --no-interaction --prefer-dist --optimize-autoloader
     - npm ci

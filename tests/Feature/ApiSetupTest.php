@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\User;
+use App\Domain\User\Models\User;
 
 test('api user route requires authentication', function () {
     $response = $this->getJson('/api/user');

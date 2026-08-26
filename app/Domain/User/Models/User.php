@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Domain\User\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Domain\Account\Models\Account;
@@ -36,6 +36,11 @@ class User extends Authenticatable implements PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
+
+    protected static function newFactory()
+    {
+        return \Database\Factories\UserFactory::new();
+    }
 
     /**
      * Get the attributes that should be cast.
