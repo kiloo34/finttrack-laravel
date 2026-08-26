@@ -2,7 +2,7 @@
 
 namespace App\Domain\Account\Models;
 
-use App\Models\User;
+use App\Domain\User\Models\User;
 use App\Domain\Ledger\Models\LedgerEntry;
 use App\Domain\Transaction\Models\Transaction;
 use Database\Factories\AccountFactory;

@@ -1,7 +1,7 @@
 <?php
 
 use App\Domain\Category\Models\Category;
-use App\Models\User;
+use App\Domain\User\Models\User;
 
 // --- Model & Relationship Tests ---
 
