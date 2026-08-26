@@ -109,11 +109,14 @@ auto_merge_dev_to_qa:
       MR_IID=$(echo $CREATE_MR_RES | jq -r '.iid')
       
       if [ "$MR_IID" != "null" ] && [ -n "$MR_IID" ]; then
+        echo "MR #$MR_IID berhasil dibuat."
         echo "Menerima (Accept) Merge Request secara otomatis..."
-        curl -s -X PUT "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests/${MR_IID}/merge" \
-             --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}"
+        MERGE_RES=$(curl -s -X PUT "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests/${MR_IID}/merge" \
+             --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}")
+        echo "Respon Merge: $MERGE_RES"
       else
-        echo "Tidak ada perubahan atau MR sudah ada."
+        echo "MR gagal dibuat atau tidak ada perubahan. Respon API GitLab:"
+        echo "$CREATE_MR_RES" | jq .
       fi
   rules:
     - if: '$CI_COMMIT_BRANCH == "dev" && $CI_PIPELINE_SOURCE != "schedule"'
@@ -135,11 +138,14 @@ scheduled_merge_qa_to_main:
       MR_IID=$(echo $CREATE_MR_RES | jq -r '.iid')
       
       if [ "$MR_IID" != "null" ] && [ -n "$MR_IID" ]; then
+        echo "MR #$MR_IID berhasil dibuat."
         echo "Menerima (Accept) Merge Request secara otomatis..."
-        curl -s -X PUT "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests/${MR_IID}/merge" \
-             --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}"
+        MERGE_RES=$(curl -s -X PUT "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests/${MR_IID}/merge" \
+             --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}")
+        echo "Respon Merge: $MERGE_RES"
       else
-        echo "Tidak ada perubahan atau MR sudah ada."
+        echo "MR gagal dibuat atau tidak ada perubahan. Respon API GitLab:"
+        echo "$CREATE_MR_RES" | jq .
       fi
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
