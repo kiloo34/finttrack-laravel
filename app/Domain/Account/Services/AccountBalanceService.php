@@ -15,17 +15,23 @@ class AccountBalanceService
      * This derives balance from the immutable ledger.
      * Do NOT use accounts.current_balance as the sole source of truth.
      */
-    public function calculate(Account $account): string
+    public function calculate(Account $account, ?\DateTimeInterface $asOfDate = null): string
     {
-        $credits = DB::table('ledger_entries')
+        $creditsQuery = DB::table('ledger_entries')
             ->where('account_id', $account->id)
-            ->where('direction', 'credit')
-            ->sum('amount');
+            ->where('direction', 'credit');
 
-        $debits = DB::table('ledger_entries')
+        $debitsQuery = DB::table('ledger_entries')
             ->where('account_id', $account->id)
-            ->where('direction', 'debit')
-            ->sum('amount');
+            ->where('direction', 'debit');
+
+        if ($asOfDate) {
+            $creditsQuery->where('created_at', '<=', $asOfDate);
+            $debitsQuery->where('created_at', '<=', $asOfDate);
+        }
+
+        $credits = $creditsQuery->sum('amount');
+        $debits = $debitsQuery->sum('amount');
 
         $balance = bcadd(
             (string) $account->initial_balance,

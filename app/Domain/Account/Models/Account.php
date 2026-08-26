@@ -36,6 +36,18 @@ class Account extends Model
         'is_active' => 'boolean',
     ];
 
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted(): void
+    {
+        static::deleting(function (Account $account) {
+            if ($account->transactions()->exists()) {
+                throw new \Exception('Account cannot be deleted because it has related transactions.');
+            }
+        });
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
