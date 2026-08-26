@@ -99,25 +99,31 @@ auto_merge_dev_to_qa:
     - apk add --no-cache curl jq
   script:
     - |
-      echo "Membuat Merge Request dari dev ke qa..."
-      # Buat MR
-      CREATE_MR_RES=$(curl -s -X POST "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests" \
-           --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
-           --data "source_branch=dev" \
-           --data "target_branch=qa" \
-           --data "title=Auto-Merge dev to qa")
-      MR_IID=$(echo $CREATE_MR_RES | jq -r '.iid')
+      echo "Mencari MR yang sudah terbuka dari dev ke qa..."
+      EXISTING_MR=$(curl -s --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests?state=opened&source_branch=dev&target_branch=qa")
+      
+      MR_IID=""
+      if [ "$(echo $EXISTING_MR | jq 'length')" -gt "0" ]; then
+        MR_IID=$(echo $EXISTING_MR | jq -r '.[0].iid')
+        echo "Ditemukan MR #$MR_IID yang sudah ada."
+      else
+        echo "Membuat Merge Request baru..."
+        CREATE_MR_RES=$(curl -s -X POST "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests" \
+             --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
+             --data "source_branch=dev" \
+             --data "target_branch=qa" \
+             --data "title=Auto-Merge dev to qa")
+        MR_IID=$(echo $CREATE_MR_RES | jq -r '.iid')
+      fi
       
       if [ "$MR_IID" != "null" ] && [ -n "$MR_IID" ]; then
-        echo "MR #$MR_IID berhasil dibuat."
-        echo "Menerima (Accept) Merge Request secara otomatis..."
+        echo "Mengaktifkan Auto-Merge (Accept) untuk MR #$MR_IID..."
         MERGE_RES=$(curl -s -X PUT "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests/${MR_IID}/merge" \
              --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
              --data "merge_when_pipeline_succeeds=true")
         echo "Respon Merge: $MERGE_RES"
       else
-        echo "MR gagal dibuat atau tidak ada perubahan. Respon API GitLab:"
-        echo "$CREATE_MR_RES" | jq .
+        echo "Gagal membuat atau mengambil MR. Periksa error."
       fi
   rules:
     - if: '$CI_COMMIT_BRANCH == "dev" && $CI_PIPELINE_SOURCE != "schedule"'
