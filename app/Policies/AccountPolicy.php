@@ -3,7 +3,7 @@
 namespace App\Policies;
 
 use App\Domain\Account\Models\Account;
-use App\Models\User;
+use App\Domain\User\Models\User;
 
 class AccountPolicy
 {

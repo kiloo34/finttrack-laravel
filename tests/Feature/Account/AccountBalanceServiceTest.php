@@ -3,7 +3,7 @@
 use App\Domain\Account\Models\Account;
 use App\Domain\Account\Services\AccountBalanceService;
 use App\Domain\Ledger\Models\LedgerEntry;
-use App\Models\User;
+use App\Domain\User\Models\User;
 
 // --- Balance Calculation Tests ---
 

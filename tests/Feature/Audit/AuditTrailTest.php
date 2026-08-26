@@ -3,7 +3,7 @@
 use App\Domain\Account\Models\Account;
 use App\Domain\Audit\Models\AuditLog;
 use App\Domain\Audit\Services\AuditService;
-use App\Models\User;
+use App\Domain\User\Models\User;
 
 // --- AuditLog Model Tests ---
 

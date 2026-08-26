@@ -4,7 +4,7 @@ use App\Domain\Account\Models\Account;
 use App\Domain\Category\Models\Category;
 use App\Domain\Transaction\Models\Transaction;
 use App\Domain\Transfer\Models\Transfer;
-use App\Models\User;
+use App\Domain\User\Models\User;
 use App\Policies\AccountPolicy;
 use App\Policies\CategoryPolicy;
 use App\Policies\TransactionPolicy;

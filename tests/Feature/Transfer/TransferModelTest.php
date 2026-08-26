@@ -3,6 +3,7 @@
 use App\Domain\Account\Models\Account;
 use App\Domain\Ledger\Models\LedgerEntry;
 use App\Domain\Transfer\Models\Transfer;
+use App\Domain\User\Models\User;
 use Illuminate\Support\Facades\DB;
 
 // --- Model & Relationship Tests ---
@@ -20,7 +21,7 @@ test('transfer belongs to a to_account', function () {
 });
 
 test('transfer from and to accounts are different', function () {
-    $user = \App\Models\User::factory()->create();
+    $user = User::factory()->create();
     $fromAccount = Account::factory()->create(['user_id' => $user->id]);
     $toAccount = Account::factory()->create(['user_id' => $user->id]);
 

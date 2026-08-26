@@ -3,7 +3,7 @@
 namespace App\Policies;
 
 use App\Domain\Transfer\Models\Transfer;
-use App\Models\User;
+use App\Domain\User\Models\User;
 
 class TransferPolicy
 {
