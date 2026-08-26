@@ -11,15 +11,16 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Validation\ValidationException;
 
 class Transaction extends Model
 {
-    /** @use HasFactory<TransactionFactory> */
     protected static function newFactory(): TransactionFactory
     {
         return TransactionFactory::new();
     }
 
+    /** @use HasFactory<TransactionFactory> */
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
@@ -39,16 +40,51 @@ class Transaction extends Model
         'transaction_date' => 'date',
     ];
 
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (Transaction $transaction) {
+            if ($transaction->category_id) {
+                // We load the relations if they are not already loaded
+                /** @var Category|null $category */
+                $category = $transaction->category()->first();
+                /** @var Account|null $account */
+                $account = $transaction->account()->first();
+
+                if ($category && $account && ! $category->is_system && $category->user_id !== $account->user_id) {
+                    throw ValidationException::withMessages([
+                        'category_id' => 'The category is invalid or belongs to another user.',
+                    ]);
+                }
+            }
+        });
+
+        static::deleting(function (Transaction $transaction) {
+            $transaction->ledgerEntries()->delete(); // soft delete related ledger entries
+        });
+    }
+
+    /**
+     * @return BelongsTo<Account, $this>
+     */
     public function account(): BelongsTo
     {
         return $this->belongsTo(Account::class);
     }
 
+    /**
+     * @return BelongsTo<Category, $this>
+     */
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
 
+    /**
+     * @return HasMany<LedgerEntry, $this>
+     */
     public function ledgerEntries(): HasMany
     {
         return $this->hasMany(LedgerEntry::class);

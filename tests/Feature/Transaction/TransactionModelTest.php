@@ -63,7 +63,7 @@ test('transaction amount is cast to decimal', function () {
 test('transaction_date is cast to date', function () {
     $transaction = Transaction::factory()->create(['transaction_date' => '2026-01-15']);
 
-    expect($transaction->transaction_date)->toBeInstanceOf(\DateTimeInterface::class);
+    expect($transaction->transaction_date)->toBeInstanceOf(DateTimeInterface::class);
     expect($transaction->transaction_date->format('Y-m-d'))->toBe('2026-01-15');
 });
 
@@ -84,11 +84,11 @@ test('transaction can be soft deleted', function () {
 test('ledger entry belongs to an account', function () {
     $transaction = Transaction::factory()->create();
     $entry = LedgerEntry::create([
-        'account_id'     => $transaction->account_id,
+        'account_id' => $transaction->account_id,
         'transaction_id' => $transaction->id,
-        'direction'      => 'credit',
-        'amount'         => $transaction->amount,
-        'currency'       => 'IDR',
+        'direction' => 'credit',
+        'amount' => $transaction->amount,
+        'currency' => 'IDR',
     ]);
 
     expect($entry->account)->toBeInstanceOf(Account::class);
@@ -96,7 +96,7 @@ test('ledger entry belongs to an account', function () {
 });
 
 test('ledger entry has no updated_at timestamp', function () {
-    $entry = new LedgerEntry();
+    $entry = new LedgerEntry;
 
     expect($entry->timestamps)->toBeFalse();
 });
@@ -108,19 +108,19 @@ test('debit and credit balance for a transfer', function () {
 
     // Simulate ledger entries for a transfer
     $debit = LedgerEntry::create([
-        'account_id'     => $fromAccount->id,
+        'account_id' => $fromAccount->id,
         'transaction_id' => null,
-        'direction'      => 'debit',
-        'amount'         => $amount,
-        'currency'       => 'IDR',
+        'direction' => 'debit',
+        'amount' => $amount,
+        'currency' => 'IDR',
     ]);
 
     $credit = LedgerEntry::create([
-        'account_id'     => $toAccount->id,
+        'account_id' => $toAccount->id,
         'transaction_id' => null,
-        'direction'      => 'credit',
-        'amount'         => $amount,
-        'currency'       => 'IDR',
+        'direction' => 'credit',
+        'amount' => $amount,
+        'currency' => 'IDR',
     ]);
 
     // Financial invariant: total debit == total credit

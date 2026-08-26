@@ -27,7 +27,7 @@ test('transfer from and to accounts are different', function () {
 
     $transfer = Transfer::factory()->create([
         'from_account_id' => $fromAccount->id,
-        'to_account_id'   => $toAccount->id,
+        'to_account_id' => $toAccount->id,
     ]);
 
     expect($transfer->from_account_id)->not->toBe($transfer->to_account_id);
@@ -46,19 +46,19 @@ test('transfer does not affect total wealth', function () {
     $amount = 500_000.00;
 
     $debit = LedgerEntry::create([
-        'account_id'     => Account::factory()->create()->id,
+        'account_id' => Account::factory()->create()->id,
         'transaction_id' => null,
-        'direction'      => 'debit',
-        'amount'         => $amount,
-        'currency'       => 'IDR',
+        'direction' => 'debit',
+        'amount' => $amount,
+        'currency' => 'IDR',
     ]);
 
     $credit = LedgerEntry::create([
-        'account_id'     => Account::factory()->create()->id,
+        'account_id' => Account::factory()->create()->id,
         'transaction_id' => null,
-        'direction'      => 'credit',
-        'amount'         => $amount,
-        'currency'       => 'IDR',
+        'direction' => 'credit',
+        'amount' => $amount,
+        'currency' => 'IDR',
     ]);
 
     // Financial invariant: debit == credit (net = 0)
@@ -68,8 +68,9 @@ test('transfer does not affect total wealth', function () {
 // --- Atomicity Test ---
 
 test('transfer creation is atomic — rolls back on failure', function () {
-    $fromAccount = Account::factory()->create();
-    $toAccount = Account::factory()->create();
+    $user = User::factory()->create();
+    $fromAccount = Account::factory()->create(['user_id' => $user->id]);
+    $toAccount = Account::factory()->create(['user_id' => $user->id]);
     $amount = 250_000.00;
     $transferId = null;
 
@@ -77,17 +78,17 @@ test('transfer creation is atomic — rolls back on failure', function () {
         DB::transaction(function () use ($fromAccount, $toAccount, $amount, &$transferId) {
             $transfer = Transfer::create([
                 'from_account_id' => $fromAccount->id,
-                'to_account_id'   => $toAccount->id,
-                'amount'          => $amount,
-                'currency'        => 'IDR',
+                'to_account_id' => $toAccount->id,
+                'amount' => $amount,
+                'currency' => 'IDR',
                 'transaction_date' => now()->toDateString(),
             ]);
             $transferId = $transfer->id;
 
             // Simulate a failure mid-transaction
-            throw new \RuntimeException('Simulated failure');
+            throw new RuntimeException('Simulated failure');
         });
-    } catch (\RuntimeException) {
+    } catch (RuntimeException) {
         // Expected
     }
 
@@ -109,6 +110,6 @@ test('transfer amount is cast to decimal', function () {
 test('transfer transaction_date is cast to date', function () {
     $transfer = Transfer::factory()->create(['transaction_date' => '2026-06-01']);
 
-    expect($transfer->transaction_date)->toBeInstanceOf(\DateTimeInterface::class);
+    expect($transfer->transaction_date)->toBeInstanceOf(DateTimeInterface::class);
     expect($transfer->transaction_date->format('Y-m-d'))->toBe('2026-06-01');
 });

@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Domain\Account\Models\Account;
+use App\Domain\User\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -20,7 +21,7 @@ class AccountFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => \App\Domain\User\Models\User::factory(),
+            'user_id' => User::factory(),
             'name' => $this->faker->words(2, true),
             'type' => $this->faker->randomElement(['cash', 'bank', 'e_wallet', 'credit_card', 'investment', 'other']),
             'currency' => 'IDR',

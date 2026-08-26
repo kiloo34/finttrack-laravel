@@ -37,9 +37,9 @@ class User extends Authenticatable implements PasskeyUser
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
 
-    protected static function newFactory()
+    protected static function newFactory(): UserFactory
     {
-        return \Database\Factories\UserFactory::new();
+        return UserFactory::new();
     }
 
     /**
@@ -59,7 +59,7 @@ class User extends Authenticatable implements PasskeyUser
     /**
      * Get the accounts owned by the user.
      *
-     * @return HasMany<Account>
+     * @return HasMany<Account, $this>
      */
     public function accounts(): HasMany
     {
@@ -69,7 +69,7 @@ class User extends Authenticatable implements PasskeyUser
     /**
      * Get the categories owned by the user.
      *
-     * @return HasMany<Category>
+     * @return HasMany<Category, $this>
      */
     public function categories(): HasMany
     {
