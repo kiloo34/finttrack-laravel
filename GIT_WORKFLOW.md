@@ -83,29 +83,15 @@ Setelah perintah `git push` dijalankan pada branch `feature/*`, Pipeline GitLab 
 
 ---
 
-## 4. Merilis ke Versi Stabil (Release to Main)
+## 4. Merilis ke Versi Stabil (Release to Main via QA)
 
-Di akhir Sprint, ketika semua fitur di branch `dev` sudah diverifikasi dan siap diluncurkan ke pengguna (Production):
+Berdasarkan arsitektur *Continuous Deployment* kita, proses merge ke `qa` dan `main` sudah **diotomatisasi** via GitLab CI:
 
-```bash
-# 1. Pindah ke branch main
-git checkout main
+1. **Auto-Merge `dev` ke `qa`:** Setiap kali ada perubahan masuk ke branch `dev` (misalnya karena MR dari fitur Anda di-*approve*), GitLab CI akan secara otomatis membuat Merge Request ke branch `qa` dan langsung menerimanya (*Auto-Merge*). Ini memastikan branch `qa` selalu up-to-date untuk keperluan testing (Staging).
+2. **Scheduled-Merge `qa` ke `main`:** Setiap seminggu sekali (berdasarkan jadwal yang Anda konfigurasi di GitLab Pipeline Schedules), CI akan mengambil seluruh versi stabil dari `qa` dan otomatis me-mergenya ke `main` (Production).
 
-# 2. Tarik versi main terbaru
-git pull origin main
-
-# 3. Gabungkan semua fitur dari branch dev ke main
-git merge dev
-
-# 4. (Opsional) Buat tag versi
-git tag -a v1.0.0 -m "Release Sprint 1"
-
-# 5. Push ke server
-git push origin main
-git push origin --tags
-```
 > [!NOTE]
-> Tergantung konfigurasi tim, proses ini biasanya juga dilakukan via Merge Request dari `dev` ke `main` di GitLab agar ada dokumentasi perilisan resmi.
+> *Developer* tidak perlu melakukan operasi *merge* ke `qa` atau `main` secara manual di terminal. Cukup fokus pada penyelesaian fitur di branch Anda dan melakukan *merge* ke `dev`.
 
 ---
 
