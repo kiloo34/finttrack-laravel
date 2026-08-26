@@ -89,5 +89,61 @@ create_mr_to_dev:
         echo "Merge Request sudah ada."
       fi
   rules:
+<<<<<<< Updated upstream
     # Hanya buat MR otomatis dari branch feature, bugfix, chore, dan test
     - if: '$CI_COMMIT_BRANCH =~ /^(feature|bugfix|chore|test)\//'
+=======
+    - if: '$CI_COMMIT_BRANCH =~ /^feature\//'
+
+auto_merge_dev_to_qa:
+  stage: create-mr
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache curl jq
+  script:
+    - |
+      echo "Membuat Merge Request dari dev ke qa..."
+      # Buat MR
+      CREATE_MR_RES=$(curl -s -X POST "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests" \
+           --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
+           --data "source_branch=dev" \
+           --data "target_branch=qa" \
+           --data "title=Auto-Merge dev to qa")
+      MR_IID=$(echo $CREATE_MR_RES | jq -r '.iid')
+      
+      if [ "$MR_IID" != "null" ] && [ -n "$MR_IID" ]; then
+        echo "Menerima (Accept) Merge Request secara otomatis..."
+        curl -s -X PUT "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests/${MR_IID}/merge" \
+             --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}"
+      else
+        echo "Tidak ada perubahan atau MR sudah ada."
+      fi
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "dev" && $CI_PIPELINE_SOURCE != "schedule"'
+
+scheduled_merge_qa_to_main:
+  stage: create-mr
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache curl jq
+  script:
+    - |
+      echo "Membuat Merge Request dari qa ke main..."
+      # Buat MR
+      CREATE_MR_RES=$(curl -s -X POST "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests" \
+           --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
+           --data "source_branch=qa" \
+           --data "target_branch=main" \
+           --data "title=Weekly Auto-Release qa to main")
+      MR_IID=$(echo $CREATE_MR_RES | jq -r '.iid')
+      
+      if [ "$MR_IID" != "null" ] && [ -n "$MR_IID" ]; then
+        echo "Menerima (Accept) Merge Request secara otomatis..."
+        curl -s -X PUT "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests/${MR_IID}/merge" \
+             --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}"
+      else
+        echo "Tidak ada perubahan atau MR sudah ada."
+      fi
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+>>>>>>> Stashed changes
