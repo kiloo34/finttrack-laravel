@@ -112,7 +112,8 @@ auto_merge_dev_to_qa:
         echo "MR #$MR_IID berhasil dibuat."
         echo "Menerima (Accept) Merge Request secara otomatis..."
         MERGE_RES=$(curl -s -X PUT "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests/${MR_IID}/merge" \
-             --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}")
+             --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
+             --data "merge_when_pipeline_succeeds=true")
         echo "Respon Merge: $MERGE_RES"
       else
         echo "MR gagal dibuat atau tidak ada perubahan. Respon API GitLab:"
@@ -141,7 +142,8 @@ scheduled_merge_qa_to_main:
         echo "MR #$MR_IID berhasil dibuat."
         echo "Menerima (Accept) Merge Request secara otomatis..."
         MERGE_RES=$(curl -s -X PUT "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests/${MR_IID}/merge" \
-             --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}")
+             --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
+             --data "merge_when_pipeline_succeeds=true")
         echo "Respon Merge: $MERGE_RES"
       else
         echo "MR gagal dibuat atau tidak ada perubahan. Respon API GitLab:"
