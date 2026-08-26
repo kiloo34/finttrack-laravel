@@ -21,7 +21,7 @@ test('user has many accounts', function () {
 // --- Fillable / Cast Tests ---
 
 test('account has correct fillable fields', function () {
-    $account = new Account();
+    $account = new Account;
 
     expect($account->getFillable())->toBe([
         'user_id',

@@ -23,7 +23,7 @@ class TransactionFactory extends Factory
     {
         return [
             'account_id' => Account::factory(),
-            'category_id' => Category::factory(),
+            'category_id' => Category::factory()->system(),
             'type' => $this->faker->randomElement(['income', 'expense', 'adjustment']),
             'amount' => $this->faker->randomFloat(2, 1000, 5_000_000),
             'currency' => 'IDR',

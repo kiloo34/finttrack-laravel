@@ -23,11 +23,16 @@ class TransferFactory extends Factory
         // Each call creates two separate accounts by default
         return [
             'from_account_id' => Account::factory(),
-            'to_account_id'   => Account::factory(),
-            'amount'          => $this->faker->randomFloat(2, 10000, 5_000_000),
-            'currency'        => 'IDR',
+            'to_account_id' => function (array $attributes) {
+                /** @var Account $fromAccount */
+                $fromAccount = Account::find($attributes['from_account_id']);
+
+                return Account::factory()->create(['user_id' => $fromAccount->user_id])->id;
+            },
+            'amount' => $this->faker->randomFloat(2, 10000, 5_000_000),
+            'currency' => 'IDR',
             'transaction_date' => $this->faker->dateTimeBetween('-1 year', 'now')->format('Y-m-d'),
-            'description'     => $this->faker->optional()->sentence(),
+            'description' => $this->faker->optional()->sentence(),
         ];
     }
 }
