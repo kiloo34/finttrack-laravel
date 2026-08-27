@@ -87,8 +87,8 @@ Setelah perintah `git push` dijalankan pada branch `feature/*`, Pipeline GitLab 
 
 Berdasarkan arsitektur *Continuous Deployment* kita, proses merge ke `qa` dan `main` sudah **diotomatisasi** via GitLab CI:
 
-1. **Auto-Merge `dev` ke `qa`:** Setiap kali ada perubahan masuk ke branch `dev` (misalnya karena MR dari fitur Anda di-*approve*), GitLab CI akan secara otomatis membuat Merge Request ke branch `qa` dan langsung menerimanya (*Auto-Merge*). Ini memastikan branch `qa` selalu up-to-date untuk keperluan testing (Staging).
-2. **Scheduled-Merge `qa` ke `main`:** Setiap seminggu sekali (berdasarkan jadwal yang Anda konfigurasi di GitLab Pipeline Schedules), CI akan mengambil seluruh versi stabil dari `qa` dan otomatis me-mergenya ke `main` (Production).
+1. **Auto-Merge Fitur ke `qa`:** Setiap kali branch fitur Anda di-merge ke `dev`, GitLab CI di branch `dev` akan otomatis mendeteksi nama branch fitur asli Anda, lalu membuat Merge Request dari branch fitur tersebut ke branch `qa` dan langsung menerimanya (*Auto-Merge*). Ini memastikan `qa` terisolasi dan hanya menerima fitur yang disetujui (bukan seluruh *history* dari `dev`).
+2. **Scheduled-Merge `qa` ke `main`:** Setiap seminggu sekali (berdasarkan jadwal yang Anda konfigurasi di GitLab Pipeline Schedules), CI akan mengambil seluruh sekumpulan fitur dari `qa` dan otomatis me-mergenya ke `main` (Production).
 
 > [!NOTE]
 > *Developer* tidak perlu melakukan operasi *merge* ke `qa` atau `main` secara manual di terminal. Cukup fokus pada penyelesaian fitur di branch Anda dan melakukan *merge* ke `dev`.
