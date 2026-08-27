@@ -17,6 +17,7 @@ it('validates store transfer correctly', function () {
         'from_account_id' => $account1->id,
         'to_account_id' => $account2->id,
         'amount' => 50000,
+        'currency' => 'IDR',
         'transaction_date' => '2024-01-01',
     ], $request->rules());
     expect($validator->passes())->toBeTrue();
@@ -26,6 +27,7 @@ it('validates store transfer correctly', function () {
         'from_account_id' => $account1->id,
         'to_account_id' => $account1->id,
         'amount' => 50000,
+        'currency' => 'IDR',
         'transaction_date' => '2024-01-01',
     ], $request->rules());
     expect($validator->passes())->toBeFalse();
@@ -36,6 +38,7 @@ it('validates store transfer correctly', function () {
         'from_account_id' => $account1->id,
         'to_account_id' => $account2->id,
         'amount' => -100,
+        'currency' => 'IDR',
         'transaction_date' => '2024-01-01',
     ], $request->rules());
     expect($validator->passes())->toBeFalse();
