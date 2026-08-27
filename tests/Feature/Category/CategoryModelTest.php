@@ -2,6 +2,7 @@
 
 use App\Domain\Category\Models\Category;
 use App\Domain\User\Models\User;
+use Illuminate\Database\QueryException;
 
 // --- Model & Relationship Tests ---
 
@@ -28,7 +29,7 @@ test('user has many categories', function () {
 // --- Fillable / Cast Tests ---
 
 test('category has correct fillable fields', function () {
-    $category = new Category();
+    $category = new Category;
 
     expect($category->getFillable())->toBe([
         'user_id',
@@ -52,7 +53,7 @@ test('user cannot have duplicate category names', function () {
     Category::factory()->create(['user_id' => $user->id, 'name' => 'Makan']);
 
     expect(fn () => Category::factory()->create(['user_id' => $user->id, 'name' => 'Makan']))
-        ->toThrow(\Illuminate\Database\QueryException::class);
+        ->toThrow(QueryException::class);
 });
 
 // --- Scope Tests ---
