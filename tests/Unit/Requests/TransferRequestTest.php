@@ -1,16 +1,16 @@
 <?php
 
-use App\Http\Requests\Transfer\StoreTransferRequest;
-use Illuminate\Support\Facades\Validator;
 use App\Domain\Account\Models\Account;
 use App\Domain\User\Models\User;
+use App\Http\Requests\Transfer\StoreTransferRequest;
+use Illuminate\Support\Facades\Validator;
 
 it('validates store transfer correctly', function () {
     $user = User::factory()->create();
     $account1 = Account::factory()->create(['user_id' => $user->id]);
     $account2 = Account::factory()->create(['user_id' => $user->id]);
-    
-    $request = new StoreTransferRequest();
+
+    $request = new StoreTransferRequest;
 
     // valid data
     $validator = Validator::make([

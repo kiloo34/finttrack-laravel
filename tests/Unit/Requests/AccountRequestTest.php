@@ -4,7 +4,7 @@ use App\Http\Requests\Account\StoreAccountRequest;
 use Illuminate\Support\Facades\Validator;
 
 it('validates store account correctly', function () {
-    $request = new StoreAccountRequest();
+    $request = new StoreAccountRequest;
 
     // valid data
     $validator = Validator::make([

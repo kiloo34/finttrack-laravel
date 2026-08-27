@@ -2,7 +2,6 @@
 
 use App\Domain\User\Models\User;
 use App\Http\Requests\Category\StoreCategoryRequest;
-use App\Http\Requests\Category\UpdateCategoryRequest;
 use Illuminate\Support\Facades\Validator;
 
 it('validates store category correctly', function () {
