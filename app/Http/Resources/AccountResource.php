@@ -6,6 +6,9 @@ use App\Domain\Account\Services\AccountBalanceService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @mixin \App\Domain\Account\Models\Account
+ */
 class AccountResource extends JsonResource
 {
     /**

@@ -22,7 +22,7 @@ it('can create a transfer and its two ledger entries', function () {
     $response = $this->actingAs($this->user, 'sanctum')->postJson('/api/transfers', $data);
 
     $response->assertStatus(201)
-        ->assertJsonPath('data.amount', 200000.0);
+        ->assertJsonPath('data.amount', 200000);
 
     $transferId = $response->json('data.id');
 
