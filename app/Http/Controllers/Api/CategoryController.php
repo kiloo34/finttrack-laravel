@@ -28,7 +28,9 @@ class CategoryController extends Controller
     public function store(StoreCategoryRequest $request): CategoryResource
     {
         $category = new Category($request->validated());
-        $category->user_id = (int) auth()->id();
+        /** @var int<1, max> $userId */
+        $userId = auth()->id();
+        $category->user_id = $userId;
         $category->is_system = false;
         $category->save();
 
