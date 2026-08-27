@@ -1,0 +1,32 @@
+<?php
+
+namespace App\Http\Requests\Account;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class StoreAccountRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     */
+    public function rules(): array
+    {
+        return [
+            'name' => ['required', 'string', 'max:255'],
+            'type' => ['required', 'string', 'in:cash,bank,e_wallet,credit_card,investment,other'],
+            'currency' => ['nullable', 'string', 'size:3'],
+            'initial_balance' => ['nullable', 'numeric', 'min:0'],
+            'is_active' => ['nullable', 'boolean'],
+        ];
+    }
+}
