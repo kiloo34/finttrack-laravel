@@ -2,12 +2,13 @@
 
 namespace App\Http\Resources;
 
+use App\Domain\Account\Models\Account;
 use App\Domain\Account\Services\AccountBalanceService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @mixin \App\Domain\Account\Models\Account
+ * @mixin Account
  */
 class AccountResource extends JsonResource
 {

@@ -2,11 +2,12 @@
 
 namespace App\Http\Resources;
 
+use App\Domain\Transfer\Models\Transfer;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @mixin \App\Domain\Transfer\Models\Transfer
+ * @mixin Transfer
  */
 class TransferResource extends JsonResource
 {

@@ -2,11 +2,12 @@
 
 namespace App\Http\Resources;
 
+use App\Domain\Category\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @mixin \App\Domain\Category\Models\Category
+ * @mixin Category
  */
 class CategoryResource extends JsonResource
 {

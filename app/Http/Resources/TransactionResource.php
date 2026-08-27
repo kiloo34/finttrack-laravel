@@ -2,11 +2,12 @@
 
 namespace App\Http\Resources;
 
+use App\Domain\Transaction\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @mixin \App\Domain\Transaction\Models\Transaction
+ * @mixin Transaction
  */
 class TransactionResource extends JsonResource
 {
