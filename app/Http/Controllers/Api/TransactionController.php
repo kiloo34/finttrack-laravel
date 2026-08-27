@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Domain\Audit\Services\AuditService;
 use App\Domain\Transaction\Models\Transaction;
-use App\Domain\User\Models\User;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Transaction\StoreTransactionRequest;
 use App\Http\Requests\Transaction\UpdateTransactionRequest;
@@ -74,15 +73,7 @@ class TransactionController extends Controller
             return $transaction;
         });
 
-        /** @var User $user */
-        $user = auth()->user();
-
-        $this->auditService->log(
-            $user,
-            'transaction_created',
-            'Created transaction of amount: '.$transaction->amount,
-            ['transaction_id' => $transaction->id]
-        );
+        $this->auditService->log('transaction_created', $transaction);
 
         $transaction->load(['account', 'category']);
 
@@ -118,15 +109,7 @@ class TransactionController extends Controller
             }
         });
 
-        /** @var User $user */
-        $user = auth()->user();
-
-        $this->auditService->log(
-            $user,
-            'transaction_updated',
-            'Updated transaction: '.$transaction->id,
-            ['transaction_id' => $transaction->id]
-        );
+        $this->auditService->log('transaction_updated', $transaction, $transaction->getOriginal(), $transaction->getAttributes());
 
         $transaction->load(['account', 'category']);
 
@@ -141,15 +124,7 @@ class TransactionController extends Controller
             $transaction->delete(); // This also soft-deletes ledger entries via model hook
         });
 
-        /** @var User $user */
-        $user = auth()->user();
-
-        $this->auditService->log(
-            $user,
-            'transaction_deleted',
-            'Deleted transaction: '.$transaction->id,
-            ['transaction_id' => $transaction->id]
-        );
+        $this->auditService->log('transaction_deleted', $transaction, $transaction->getAttributes());
 
         return response()->noContent();
     }

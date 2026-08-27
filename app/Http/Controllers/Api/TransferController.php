@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Domain\Audit\Services\AuditService;
 use App\Domain\Transfer\Models\Transfer;
-use App\Domain\User\Models\User;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Transfer\StoreTransferRequest;
 use App\Http\Resources\TransferResource;
@@ -40,15 +39,7 @@ class TransferController extends Controller
             return $transfer;
         });
 
-        /** @var User $user */
-        $user = auth()->user();
-
-        $this->auditService->log(
-            $user,
-            'transfer_created',
-            "Created transfer of amount {$transfer->amount} from account {$transfer->from_account_id} to {$transfer->to_account_id}",
-            ['transfer_id' => $transfer->id]
-        );
+        $this->auditService->log('transfer_created', $transfer);
 
         $transfer->load(['fromAccount', 'toAccount']);
 

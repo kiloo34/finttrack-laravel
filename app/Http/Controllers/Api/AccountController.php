@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Domain\Account\Models\Account;
 use App\Domain\Audit\Services\AuditService;
-use App\Domain\User\Models\User;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Account\StoreAccountRequest;
 use App\Http\Requests\Account\UpdateAccountRequest;
@@ -31,15 +30,7 @@ class AccountController extends Controller
         $account->user_id = auth()->id();
         $account->save();
 
-        /** @var User $user */
-        $user = auth()->user();
-
-        $this->auditService->log(
-            $user,
-            'account_created',
-            'Created account: '.$account->name,
-            ['account_id' => $account->id]
-        );
+        $this->auditService->log('account_created', $account);
 
         return new AccountResource($account);
     }
@@ -57,15 +48,7 @@ class AccountController extends Controller
 
         $account->update($request->validated());
 
-        /** @var User $user */
-        $user = auth()->user();
-
-        $this->auditService->log(
-            $user,
-            'account_updated',
-            'Updated account: '.$account->name,
-            ['account_id' => $account->id]
-        );
+        $this->auditService->log('account_updated', $account, $account->getOriginal(), $account->getAttributes());
 
         return new AccountResource($account);
     }
@@ -76,15 +59,7 @@ class AccountController extends Controller
 
         $account->delete();
 
-        /** @var User $user */
-        $user = auth()->user();
-
-        $this->auditService->log(
-            $user,
-            'account_deleted',
-            'Deleted account: '.$account->name,
-            ['account_id' => $account->id]
-        );
+        $this->auditService->log('account_deleted', $account, $account->getAttributes());
 
         return response()->noContent();
     }

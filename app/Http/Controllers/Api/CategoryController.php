@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Domain\Audit\Services\AuditService;
 use App\Domain\Category\Models\Category;
-use App\Domain\User\Models\User;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Category\StoreCategoryRequest;
 use App\Http\Requests\Category\UpdateCategoryRequest;
@@ -33,15 +32,7 @@ class CategoryController extends Controller
         $category->is_system = false;
         $category->save();
 
-        /** @var User $user */
-        $user = auth()->user();
-
-        $this->auditService->log(
-            $user,
-            'category_created',
-            'Created category: '.$category->name,
-            ['category_id' => $category->id]
-        );
+        $this->auditService->log('category_created', $category);
 
         return new CategoryResource($category);
     }
@@ -59,15 +50,7 @@ class CategoryController extends Controller
 
         $category->update($request->validated());
 
-        /** @var User $user */
-        $user = auth()->user();
-
-        $this->auditService->log(
-            $user,
-            'category_updated',
-            'Updated category: '.$category->name,
-            ['category_id' => $category->id]
-        );
+        $this->auditService->log('category_updated', $category, $category->getOriginal(), $category->getAttributes());
 
         return new CategoryResource($category);
     }
@@ -78,15 +61,7 @@ class CategoryController extends Controller
 
         $category->delete();
 
-        /** @var User $user */
-        $user = auth()->user();
-
-        $this->auditService->log(
-            $user,
-            'category_deleted',
-            'Deleted category: '.$category->name,
-            ['category_id' => $category->id]
-        );
+        $this->auditService->log('category_deleted', $category, $category->getAttributes());
 
         return response()->noContent();
     }
