@@ -12,3 +12,5 @@ parameters:
 
     level: 7
     checkModelProperties: false
+    parallel:
+        maximumNumberOfProcesses: 1
