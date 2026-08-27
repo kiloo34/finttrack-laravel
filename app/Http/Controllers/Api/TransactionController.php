@@ -109,7 +109,7 @@ class TransactionController extends Controller
             }
         });
 
-        $this->auditService->log('transaction_updated', $transaction, $transaction->getOriginal(), $transaction->getAttributes());
+        $this->auditService->log('transaction_updated', $transaction, $transaction->getOriginal() ?: [], $transaction->getAttributes());
 
         $transaction->load(['account', 'category']);
 

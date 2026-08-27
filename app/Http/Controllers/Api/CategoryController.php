@@ -50,7 +50,7 @@ class CategoryController extends Controller
 
         $category->update($request->validated());
 
-        $this->auditService->log('category_updated', $category, $category->getOriginal(), $category->getAttributes());
+        $this->auditService->log('category_updated', $category, $category->getOriginal() ?: [], $category->getAttributes());
 
         return new CategoryResource($category);
     }

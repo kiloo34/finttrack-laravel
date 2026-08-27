@@ -48,7 +48,7 @@ class AccountController extends Controller
 
         $account->update($request->validated());
 
-        $this->auditService->log('account_updated', $account, $account->getOriginal(), $account->getAttributes());
+        $this->auditService->log('account_updated', $account, $account->getOriginal() ?: [], $account->getAttributes());
 
         return new AccountResource($account);
     }
