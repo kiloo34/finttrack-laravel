@@ -84,7 +84,7 @@ create_mr_to_dev:
              --data "source_branch=${CI_COMMIT_BRANCH}" \
              --data "target_branch=dev" \
              --data "title=Merge ${CI_COMMIT_BRANCH} to dev" \
-             --data "remove_source_branch=true"
+             --data "remove_source_branch=false"
       else
         echo "Merge Request sudah ada."
       fi
