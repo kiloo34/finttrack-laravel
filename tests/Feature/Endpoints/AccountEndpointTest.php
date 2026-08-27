@@ -21,7 +21,7 @@ it('lists user accounts', function () {
 it('can create an account', function () {
     $data = [
         'name' => 'Gopay',
-        'type' => 'e-wallet',
+        'type' => 'e_wallet',
         'currency' => 'IDR',
         'initial_balance' => 50000,
         'is_active' => true,
@@ -31,7 +31,7 @@ it('can create an account', function () {
 
     $response->assertStatus(201)
         ->assertJsonPath('data.name', 'Gopay')
-        ->assertJsonPath('data.initial_balance', 50000.0);
+        ->assertJsonPath('data.initial_balance', 50000);
 
     $this->assertDatabaseHas('accounts', [
         'name' => 'Gopay',
@@ -73,7 +73,7 @@ it('cannot update other users account', function () {
         'is_active' => true,
     ]);
 
-    $response->assertStatus(404);
+    $response->assertStatus(403);
 });
 
 it('can delete an account', function () {

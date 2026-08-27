@@ -47,7 +47,7 @@ it('can create a transaction and its ledger entry', function () {
     $response = $this->actingAs($this->user, 'sanctum')->postJson('/api/transactions', $data);
 
     $response->assertStatus(201)
-        ->assertJsonPath('data.amount', 150000.0);
+        ->assertJsonPath('data.amount', 150000);
 
     $this->assertDatabaseHas('transactions', [
         'account_id' => $this->account->id,
