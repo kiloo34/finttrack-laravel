@@ -27,7 +27,7 @@ class AccountController extends Controller
     public function store(StoreAccountRequest $request): AccountResource
     {
         $account = new Account($request->validated());
-        $account->user_id = auth()->id();
+        $account->user_id = (int) auth()->id();
         $account->save();
 
         $this->auditService->log('account_created', $account);
