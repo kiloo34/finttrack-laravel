@@ -26,6 +26,7 @@ class StoreTransferRequest extends FormRequest
             'from_account_id' => ['required', 'exists:accounts,id'],
             'to_account_id' => ['required', 'exists:accounts,id', 'different:from_account_id'],
             'amount' => ['required', 'numeric', 'gt:0', 'max:99999999999999'],
+            'currency' => ['required', 'string', 'size:3'],
             'transaction_date' => ['required', 'date'],
             'description' => ['nullable', 'string', 'max:255'],
         ];
