@@ -1,16 +1,17 @@
-import { Form, Head } from '@inertiajs/react';
-import { useRef } from 'react';
-import SecurityController from '@/actions/App/Http/Controllers/Settings/SecurityController';
+import { Head, usePage, router } from '@inertiajs/react';
+import { useState } from 'react';
 import Heading from '@/components/heading';
-import InputError from '@/components/input-error';
 import type { Props as ManagePasskeysProps } from '@/components/manage-passkeys';
-import ManagePasskeys from '@/components/manage-passkeys';
 import type { Props as ManageTwoFactorProps } from '@/components/manage-two-factor';
 import ManageTwoFactor from '@/components/manage-two-factor';
-import PasswordInput from '@/components/password-input';
+import PasskeyItem from '@/components/passkey-item';
+import PasskeyRegistration from '@/components/passkey-register';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
+import { Mail, Lock, KeyRound } from 'lucide-react';
 import { edit } from '@/routes/security';
+import UpdatePasswordModal from '@/components/settings/UpdatePasswordModal';
+import { destroy } from '@/actions/Laravel/Passkeys/Http/Controllers/PasskeyRegistrationController';
+import type { PageProps } from '@/types';
 
 type Props = {
     passwordRules: string;
@@ -18,120 +19,121 @@ type Props = {
     ManageTwoFactorProps;
 
 export default function Security(props: Props) {
-    const passwordInput = useRef<HTMLInputElement>(null);
-    const currentPasswordInput = useRef<HTMLInputElement>(null);
+    const user = usePage<PageProps>().props.auth.user;
+    const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+    const passkeys = props.passkeys ?? [];
+
+    const handleDeletePasskey = (id: number, onError: () => void) => {
+        router.delete(destroy.url(id), {
+            preserveScroll: true,
+            onError,
+        });
+    };
+
+    const handleRegisterSuccess = () => {
+        router.reload();
+    };
 
     return (
         <>
             <Head title="Security settings" />
 
-            <h1 className="sr-only">Security settings</h1>
+            <div className="space-y-10">
+                <div className="space-y-4">
+                    <Heading
+                        variant="small"
+                        title="Login methods"
+                        description="Ways you can sign in to your account."
+                    />
 
-            <div className="space-y-6">
-                <Heading
-                    variant="small"
-                    title="Update password"
-                    description="Ensure your account is using a long, random password to stay secure"
-                />
-
-                <Form
-                    {...SecurityController.update.form()}
-                    options={{
-                        preserveScroll: true,
-                    }}
-                    resetOnError={[
-                        'password',
-                        'password_confirmation',
-                        'current_password',
-                    ]}
-                    resetOnSuccess
-                    onError={(errors) => {
-                        if (errors.password) {
-                            passwordInput.current?.focus();
-                        }
-
-                        if (errors.current_password) {
-                            currentPasswordInput.current?.focus();
-                        }
-                    }}
-                    className="space-y-6"
-                >
-                    {({ errors, processing }) => (
-                        <>
-                            <div className="grid gap-2">
-                                <Label htmlFor="current_password">
-                                    Current password
-                                </Label>
-
-                                <PasswordInput
-                                    id="current_password"
-                                    ref={currentPasswordInput}
-                                    name="current_password"
-                                    className="mt-1 block w-full"
-                                    autoComplete="current-password"
-                                    placeholder="Current password"
-                                />
-
-                                <InputError message={errors.current_password} />
-                            </div>
-
-                            <div className="grid gap-2">
-                                <Label htmlFor="password">New password</Label>
-
-                                <PasswordInput
-                                    id="password"
-                                    ref={passwordInput}
-                                    name="password"
-                                    className="mt-1 block w-full"
-                                    autoComplete="new-password"
-                                    placeholder="New password"
-                                    passwordrules={props.passwordRules}
-                                />
-
-                                <InputError message={errors.password} />
-                            </div>
-
-                            <div className="grid gap-2">
-                                <Label htmlFor="password_confirmation">
-                                    Confirm password
-                                </Label>
-
-                                <PasswordInput
-                                    id="password_confirmation"
-                                    name="password_confirmation"
-                                    className="mt-1 block w-full"
-                                    autoComplete="new-password"
-                                    placeholder="Confirm password"
-                                    passwordrules={props.passwordRules}
-                                />
-
-                                <InputError
-                                    message={errors.password_confirmation}
-                                />
-                            </div>
-
+                    <div className="overflow-hidden rounded-lg border border-border bg-card">
+                        {/* Email Row */}
+                        <div className="flex items-center justify-between border-b p-4 sm:px-6">
                             <div className="flex items-center gap-4">
-                                <Button
-                                    disabled={processing}
-                                    data-test="update-password-button"
-                                >
-                                    Save
-                                </Button>
+                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted">
+                                    <Mail className="h-5 w-5 text-muted-foreground" />
+                                </div>
+                                <div className="space-y-1">
+                                    <p className="font-medium tracking-tight">
+                                        {user.email}
+                                    </p>
+                                    <p className="text-sm text-muted-foreground">
+                                        Sign in with one-time codes sent to your email.
+                                    </p>
+                                </div>
                             </div>
-                        </>
-                    )}
-                </Form>
+                            <Button variant="outline" size="sm">
+                                Change email
+                            </Button>
+                        </div>
+
+                        {/* Password Row */}
+                        <div className="flex items-center justify-between border-b p-4 sm:px-6">
+                            <div className="flex items-center gap-4">
+                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted">
+                                    <Lock className="h-5 w-5 text-muted-foreground" />
+                                </div>
+                                <div className="space-y-1">
+                                    <p className="font-medium tracking-tight">
+                                        Password
+                                    </p>
+                                    <p className="text-sm text-muted-foreground">
+                                        Update your password to stay secure.
+                                    </p>
+                                </div>
+                            </div>
+                            <Button variant="outline" size="sm" onClick={() => setIsPasswordModalOpen(true)}>
+                                Change
+                            </Button>
+                        </div>
+
+                        {/* Passkeys Row */}
+                        {props.canManagePasskeys && (
+                            <div className="flex flex-col p-4 sm:px-6">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-4">
+                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted">
+                                            <KeyRound className="h-5 w-5 text-muted-foreground" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <p className="font-medium tracking-tight">
+                                                Passkey
+                                            </p>
+                                            <p className="text-sm text-muted-foreground">
+                                                Use Face ID, Touch ID, or a security key.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <PasskeyRegistration onSuccess={handleRegisterSuccess} />
+                                </div>
+                                
+                                {passkeys.length > 0 && (
+                                    <div className="mt-4 rounded-md border border-border bg-muted/30">
+                                        {passkeys.map((passkey) => (
+                                            <PasskeyItem
+                                                key={passkey.id}
+                                                passkey={passkey}
+                                                onDelete={handleDeletePasskey}
+                                            />
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                <ManageTwoFactor
+                    canManageTwoFactor={props.canManageTwoFactor}
+                    requiresConfirmation={props.requiresConfirmation}
+                    twoFactorEnabled={props.twoFactorEnabled}
+                />
             </div>
 
-            <ManageTwoFactor
-                canManageTwoFactor={props.canManageTwoFactor}
-                requiresConfirmation={props.requiresConfirmation}
-                twoFactorEnabled={props.twoFactorEnabled}
-            />
-
-            <ManagePasskeys
-                canManagePasskeys={props.canManagePasskeys}
-                passkeys={props.passkeys}
+            <UpdatePasswordModal
+                isOpen={isPasswordModalOpen}
+                onClose={() => setIsPasswordModalOpen(false)}
+                passwordRules={props.passwordRules}
             />
         </>
     );
