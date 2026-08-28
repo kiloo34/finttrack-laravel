@@ -21,28 +21,25 @@ export default function DeleteUser() {
 
     return (
         <div className="space-y-6">
-            <Heading
-                variant="small"
-                title="Delete account"
-                description="Delete your account and all of its resources"
-            />
-            <div className="space-y-4 rounded-lg border border-red-100 bg-red-50 p-4 dark:border-red-200/10 dark:bg-red-700/10">
-                <div className="relative space-y-0.5 text-red-600 dark:text-red-100">
-                    <p className="font-medium">Warning</p>
-                    <p className="text-sm">
-                        Please proceed with caution, this cannot be undone.
-                    </p>
-                </div>
+            <div className="rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-card text-card-foreground shadow-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4">
+                    <div className="space-y-0.5">
+                        <Label className="text-base font-medium">Delete account</Label>
+                        <p className="text-sm text-muted-foreground">
+                            Permanently remove your account and all of its data.
+                        </p>
+                    </div>
 
-                <Dialog>
-                    <DialogTrigger asChild>
-                        <Button
-                            variant="destructive"
-                            data-test="delete-user-button"
-                        >
-                            Delete account
-                        </Button>
-                    </DialogTrigger>
+                    <Dialog>
+                        <DialogTrigger asChild>
+                            <Button
+                                variant="outline"
+                                className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 dark:border-red-900/30 dark:hover:bg-red-900/20"
+                                data-test="delete-user-button"
+                            >
+                                Delete account
+                            </Button>
+                        </DialogTrigger>
                     <DialogContent>
                         <DialogTitle>
                             Are you sure you want to delete your account?
@@ -114,6 +111,7 @@ export default function DeleteUser() {
                         </Form>
                     </DialogContent>
                 </Dialog>
+                </div>
             </div>
         </div>
     );

@@ -16,11 +16,28 @@ import {
 import { dashboard } from '@/routes';
 import type { NavItem } from '@/types';
 
+import { Wallet, Tags, ReceiptText } from 'lucide-react';
+
 const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
-        href: dashboard(),
+        href: '/dashboard',
         icon: LayoutGrid,
+    },
+    {
+        title: 'Transactions',
+        href: '/transactions',
+        icon: ReceiptText,
+    },
+    {
+        title: 'Accounts',
+        href: '/accounts',
+        icon: Wallet,
+    },
+    {
+        title: 'Categories',
+        href: '/categories',
+        icon: Tags,
     },
 ];
 
