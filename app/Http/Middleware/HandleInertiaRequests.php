@@ -48,7 +48,7 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
-            'constants' => Cache::remember('system_constants_v2', 3600, function () {
+            'constants' => Cache::remember('system_constants_v4', 3600, function () {
                 try {
                     return [
                         'ACCOUNT_TYPES' => AccountTypeModel::all()->values()->toArray(),

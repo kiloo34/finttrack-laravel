@@ -23,6 +23,8 @@ class ConstantsSeeder extends Seeder
             ['value' => 'cash', 'label' => 'Cash'],
             ['value' => 'credit_card', 'label' => 'Credit Card'],
             ['value' => 'investment', 'label' => 'Investment'],
+            ['value' => 'debt', 'label' => 'Debt (Hutang)'],
+            ['value' => 'receivable', 'label' => 'Receivable (Piutang)'],
         ]);
 
         DB::table('currencies')->insert([

@@ -143,6 +143,14 @@ export default function TransactionForm({ initialData }: TransactionFormProps) {
         }
     });
 
+    const accountOptions = accounts
+        .filter(account => account.type !== 'investment')
+        .map(account => ({
+        label: `${account.name} ${account.account_number ? `(${account.account_number})` : ''} - Rp ${Number(account.current_balance).toLocaleString('id-ID')}`,
+        value: account.id.toString(),
+        group: account.provider_name || 'Others'
+    }));
+
     if (isFetching) {
         return (
             <div className="flex h-64 items-center justify-center">
@@ -224,18 +232,12 @@ export default function TransactionForm({ initialData }: TransactionFormProps) {
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="account">{type === 'transfer' ? 'Source Account' : 'Account'}</Label>
-                                <Select value={accountId} onValueChange={setAccountId}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select an account" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {accounts.map(account => (
-                                            <SelectItem key={account.id} value={account.id.toString()}>
-                                                {account.name} {account.account_number ? `(${account.account_number})` : ''} - <AmountDisplay amount={Number(account.current_balance)} />
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                <Combobox
+                                    options={accountOptions}
+                                    value={accountId}
+                                    onChange={setAccountId}
+                                    placeholder="Select an account"
+                                />
                                 {errors.account_id && <InputError message={errors.account_id[0]} />}
                                 {errors.from_account_id && <InputError message={errors.from_account_id[0]} />}
                             </div>
@@ -243,20 +245,12 @@ export default function TransactionForm({ initialData }: TransactionFormProps) {
                             {type === 'transfer' && (
                                 <div className="space-y-2">
                                     <Label htmlFor="to_account">Destination Account</Label>
-                                    <Select value={toAccountId} onValueChange={setToAccountId}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select destination account" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {accounts
-                                                .filter(a => a.id.toString() !== accountId)
-                                                .map(account => (
-                                                <SelectItem key={account.id} value={account.id.toString()}>
-                                                    {account.name} {account.account_number ? `(${account.account_number})` : ''} - <AmountDisplay amount={Number(account.current_balance)} />
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                    <Combobox
+                                        options={accountOptions.filter(opt => opt.value !== accountId)}
+                                        value={toAccountId}
+                                        onChange={setToAccountId}
+                                        placeholder="Select destination account"
+                                    />
                                     {errors.to_account_id && <InputError message={errors.to_account_id[0]} />}
                                 </div>
                             )}
