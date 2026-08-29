@@ -1,9 +1,9 @@
 <?php
 
-use App\Domain\Account\Models\Account;
-use App\Domain\Account\Services\AccountBalanceService;
-use App\Domain\Ledger\Models\LedgerEntry;
-use App\Domain\User\Models\User;
+use App\Modules\Account\Infrastructure\Persistence\Eloquent\Models\AccountModel as Account;
+use App\Modules\Account\Infrastructure\Services\AccountBalanceService;
+use App\Modules\Ledger\Infrastructure\Persistence\Eloquent\Models\LedgerEntryModel as LedgerEntry;
+use App\Modules\User\Infrastructure\Persistence\Eloquent\Models\UserModel as User;
 
 // --- Balance Calculation Tests ---
 
@@ -12,7 +12,7 @@ test('balance equals initial_balance when there are no ledger entries', function
 
     $service = new AccountBalanceService;
 
-    expect($service->calculate($account))->toBe('1000000.00');
+    expect($service->calculateFromModel($account))->toBe('1000000.00');
 });
 
 test('balance increases with credit entries', function () {
@@ -28,7 +28,7 @@ test('balance increases with credit entries', function () {
 
     $service = new AccountBalanceService;
 
-    expect($service->calculate($account))->toBe('500000.00');
+    expect($service->calculateFromModel($account))->toBe('500000.00');
 });
 
 test('balance decreases with debit entries', function () {
@@ -44,7 +44,7 @@ test('balance decreases with debit entries', function () {
 
     $service = new AccountBalanceService;
 
-    expect($service->calculate($account))->toBe('700000.00');
+    expect($service->calculateFromModel($account))->toBe('700000.00');
 });
 
 test('balance formula: initial + credits - debits', function () {
@@ -64,7 +64,7 @@ test('balance formula: initial + credits - debits', function () {
 
     // Expected: 2,000,000 + 1,500,000 - 500,000 = 3,000,000
     $service = new AccountBalanceService;
-    expect($service->calculate($account))->toBe('3000000.00');
+    expect($service->calculateFromModel($account))->toBe('3000000.00');
 });
 
 test('balance uses precise decimal arithmetic (no floating point errors)', function () {
@@ -84,7 +84,7 @@ test('balance uses precise decimal arithmetic (no floating point errors)', funct
     $service = new AccountBalanceService;
 
     // Must be exactly 0.30, not 0.30000000000000004
-    expect($service->calculate($account))->toBe('0.30');
+    expect($service->calculateFromModel($account))->toBe('0.30');
 });
 
 test('totalForUser sums balance across all active accounts', function () {

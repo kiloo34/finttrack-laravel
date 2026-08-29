@@ -1,9 +1,11 @@
 <?php
 
-use App\Domain\Account\Models\Account;
-use App\Domain\Ledger\Models\LedgerEntry;
-use App\Domain\Transfer\Models\Transfer;
-use App\Domain\User\Models\User;
+use App\Modules\Account\Infrastructure\Persistence\Eloquent\Models\AccountModel as Account;
+use App\Modules\Ledger\Infrastructure\Persistence\Eloquent\Models\LedgerEntryModel as LedgerEntry;
+use App\Modules\Transfer\Application\DTOs\CreateTransferInput;
+use App\Modules\Transfer\Application\UseCases\CreateTransferUseCase;
+use App\Modules\Transfer\Infrastructure\Persistence\Eloquent\Models\TransferModel as Transfer;
+use App\Modules\User\Infrastructure\Persistence\Eloquent\Models\UserModel as User;
 use Illuminate\Validation\ValidationException;
 
 // --- Transfer Business Rules Tests ---
@@ -15,10 +17,16 @@ test('transfer fails if from_account and to_account belong to different users', 
     $userB = User::factory()->create();
     $accountB = Account::factory()->create(['user_id' => $userB->id]);
 
-    expect(fn () => Transfer::factory()->create([
-        'from_account_id' => $accountA->id,
-        'to_account_id' => $accountB->id,
-    ]))->toThrow(ValidationException::class);
+    $useCase = app(CreateTransferUseCase::class);
+
+    expect(fn () => $useCase->execute(new CreateTransferInput(
+        fromAccountId: $accountA->id,
+        toAccountId: $accountB->id,
+        amount: '100',
+        currency: 'IDR',
+        transactionDate: new DateTimeImmutable,
+        description: null
+    ), $userA->id))->toThrow(ValidationException::class);
 });
 
 test('transfer creates double ledger entries automatically', function () {
@@ -26,13 +34,15 @@ test('transfer creates double ledger entries automatically', function () {
     $fromAccount = Account::factory()->create(['user_id' => $user->id]);
     $toAccount = Account::factory()->create(['user_id' => $user->id]);
 
-    // We don't use the factory to automatically trigger the logic if we put the logic in a Service,
-    // but if we put the logic in the Model's booted method, it will trigger on create.
-    $transfer = Transfer::factory()->create([
-        'from_account_id' => $fromAccount->id,
-        'to_account_id' => $toAccount->id,
-        'amount' => 500,
-    ]);
+    $useCase = app(CreateTransferUseCase::class);
+    $useCase->execute(new CreateTransferInput(
+        fromAccountId: $fromAccount->id,
+        toAccountId: $toAccount->id,
+        amount: '500',
+        currency: 'IDR',
+        transactionDate: new DateTimeImmutable,
+        description: null
+    ), $user->id);
 
     // Check from_account ledger entry (Debit)
     $debitEntry = LedgerEntry::where('account_id', $fromAccount->id)
@@ -54,14 +64,16 @@ test('transfer amount is always positive', function () {
     $fromAccount = Account::factory()->create(['user_id' => $user->id]);
     $toAccount = Account::factory()->create(['user_id' => $user->id]);
 
-    // This might already be in TransferModelTest, but it's a good business rule to enforce
-    // explicitly via mutator or validation.
-    $transfer = Transfer::factory()->create([
-        'from_account_id' => $fromAccount->id,
-        'to_account_id' => $toAccount->id,
-        'amount' => -100, // Negative amount
-    ]);
+    $useCase = app(CreateTransferUseCase::class);
+    $output = $useCase->execute(new CreateTransferInput(
+        fromAccountId: $fromAccount->id,
+        toAccountId: $toAccount->id,
+        amount: '-100',
+        currency: 'IDR',
+        transactionDate: new DateTimeImmutable,
+        description: null
+    ), $user->id);
 
-    // Assuming we use a mutator to ensure positive amounts
-    expect((float) $transfer->amount)->toBe(100.0);
+    // Assuming we use a mutator or the entity ensures positive amounts
+    expect((float) $output->amount)->toBe(100.0);
 });

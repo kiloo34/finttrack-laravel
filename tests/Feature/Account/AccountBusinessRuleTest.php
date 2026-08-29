@@ -1,10 +1,10 @@
 <?php
 
-use App\Domain\Account\Models\Account;
-use App\Domain\Account\Services\AccountBalanceService;
-use App\Domain\Ledger\Models\LedgerEntry;
-use App\Domain\Transaction\Models\Transaction;
-use App\Domain\User\Models\User;
+use App\Modules\Account\Infrastructure\Persistence\Eloquent\Models\AccountModel as Account;
+use App\Modules\Account\Infrastructure\Services\AccountBalanceService;
+use App\Modules\Ledger\Infrastructure\Persistence\Eloquent\Models\LedgerEntryModel as LedgerEntry;
+use App\Modules\Transaction\Infrastructure\Persistence\Eloquent\Models\TransactionModel as Transaction;
+use App\Modules\User\Infrastructure\Persistence\Eloquent\Models\UserModel as User;
 use Illuminate\Support\Carbon;
 
 // --- Account Business Rules Tests ---
@@ -58,12 +58,12 @@ test('account balance service calculates historical balance correctly', function
 
     // Balance 7 days ago: Only the 1000 credit should count. (1000)
     $historicalDate1 = Carbon::now()->subDays(7);
-    expect($service->calculate($account, $historicalDate1))->toBe('1000.00');
+    expect($service->calculateFromModel($account, $historicalDate1))->toBe('1000.00');
 
     // Balance 2 days ago: The 1000 credit and 200 debit should count. (800)
     $historicalDate2 = Carbon::now()->subDays(2);
-    expect($service->calculate($account, $historicalDate2))->toBe('800.00');
+    expect($service->calculateFromModel($account, $historicalDate2))->toBe('800.00');
 
     // Current balance: All should count. (1300)
-    expect($service->calculate($account))->toBe('1300.00');
+    expect($service->calculateFromModel($account))->toBe('1300.00');
 });

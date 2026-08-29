@@ -1,7 +1,7 @@
 <?php
 
-use App\Domain\Category\Models\Category;
-use App\Domain\User\Models\User;
+use App\Modules\Category\Infrastructure\Persistence\Eloquent\Models\CategoryModel as Category;
+use App\Modules\User\Infrastructure\Persistence\Eloquent\Models\UserModel as User;
 use Illuminate\Database\QueryException;
 
 // --- Model & Relationship Tests ---

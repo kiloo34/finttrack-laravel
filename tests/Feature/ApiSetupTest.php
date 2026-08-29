@@ -1,6 +1,6 @@
 <?php
 
-use App\Domain\User\Models\User;
+use App\Modules\User\Infrastructure\Persistence\Eloquent\Models\UserModel as User;
 
 test('api user route requires authentication', function () {
     $response = $this->getJson('/api/user');

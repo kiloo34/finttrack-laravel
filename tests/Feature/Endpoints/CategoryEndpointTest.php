@@ -1,9 +1,10 @@
 <?php
 
-use App\Domain\Category\Models\Category;
-use App\Domain\User\Models\User;
+use App\Modules\Category\Infrastructure\Persistence\Eloquent\Models\CategoryModel as Category;
+use App\Modules\User\Infrastructure\Persistence\Eloquent\Models\UserModel as User;
 
 beforeEach(function () {
+    $this->artisan('db:seed', ['--class' => 'ConstantsSeeder']);
     $this->user = User::factory()->create();
 });
 

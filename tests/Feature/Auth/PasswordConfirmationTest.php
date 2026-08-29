@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Auth;
 
-use App\Domain\User\Models\User;
+use App\Modules\User\Infrastructure\Persistence\Eloquent\Models\UserModel as User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;

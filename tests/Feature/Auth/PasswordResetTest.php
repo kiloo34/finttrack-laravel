@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Auth;
 
-use App\Domain\User\Models\User;
+use App\Modules\User\Infrastructure\Persistence\Eloquent\Models\UserModel as User;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
