@@ -3,14 +3,16 @@ import { Head } from '@inertiajs/react';
 import axios from '@/lib/axios';
 import { Account } from '@/types/finance';
 import { Button } from '@/components/ui/button';
-import { Plus, Wallet, Edit2 } from 'lucide-react';
+import { Plus, Wallet, Edit2, ChevronDown, Building2 } from 'lucide-react';
 import AccountModal from '@/components/accounts/AccountModal';
+import AmountDisplay from '@/components/AmountDisplay';
 
 export default function AccountsIndex() {
     const [accounts, setAccounts] = useState<Account[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
+    const [expandedProviders, setExpandedProviders] = useState<Record<string, boolean>>({});
 
     const fetchAccounts = async () => {
         setIsLoading(true);
@@ -38,7 +40,29 @@ export default function AccountsIndex() {
         setSelectedAccount(null);
     };
 
+    const toggleExpand = (providerName: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        setExpandedProviders(prev => ({
+            ...prev,
+            [providerName]: !prev[providerName]
+        }));
+    };
+
     const totalBalance = accounts.reduce((acc, account) => acc + Number(account.current_balance), 0);
+
+    // Group accounts by provider
+    const groupedAccounts = accounts.reduce((acc, account) => {
+        const groupName = account.provider_name || account.name; // Fallback to account name if no provider
+        if (!acc[groupName]) {
+            acc[groupName] = {
+                total: 0,
+                accounts: []
+            };
+        }
+        acc[groupName].total += Number(account.current_balance);
+        acc[groupName].accounts.push(account);
+        return acc;
+    }, {} as Record<string, { total: number, accounts: Account[] }>);
 
     return (
         <div className="flex h-full flex-1 flex-col gap-6 p-6">
@@ -61,7 +85,7 @@ export default function AccountsIndex() {
                         <Wallet className="h-4 w-4 text-muted-foreground" />
                     </div>
                     <div className="text-2xl font-bold">
-                        Rp {totalBalance.toLocaleString('id-ID')}
+                        <AmountDisplay amount={totalBalance} />
                     </div>
                 </div>
             </div>
@@ -79,24 +103,70 @@ export default function AccountsIndex() {
                         </Button>
                     </div>
                 ) : (
-                    accounts.map(account => (
-                        <div key={account.id} className="rounded-xl border bg-card text-card-foreground shadow-sm flex flex-col">
-                            <div className="p-6 flex flex-row items-center justify-between">
-                                <div>
-                                    <h3 className="font-medium text-lg leading-none">{account.name}</h3>
-                                    <p className="text-sm text-muted-foreground mt-1 capitalize">{account.type}</p>
+                    Object.entries(groupedAccounts).map(([providerName, group]) => {
+                        const isExpanded = !!expandedProviders[providerName];
+                        const hasMultiple = group.accounts.length > 1;
+
+                        return (
+                            <div key={providerName} className="rounded-xl border bg-card text-card-foreground shadow-sm flex flex-col overflow-hidden">
+                                <div 
+                                    className={`p-6 flex flex-row items-center justify-between transition-colors ${hasMultiple ? 'cursor-pointer hover:bg-muted/50' : ''}`}
+                                    onClick={(e) => hasMultiple && toggleExpand(providerName, e)}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 rounded-lg bg-blue-50 text-blue-500">
+                                            <Building2 className="h-5 w-5" />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-medium text-lg leading-none">{providerName}</h3>
+                                            <p className="text-sm text-muted-foreground mt-1">
+                                                {group.accounts.length} {group.accounts.length === 1 ? 'Account' : 'Accounts'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        {!hasMultiple && (
+                                            <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); handleOpenModal(group.accounts[0]); }}>
+                                                <Edit2 className="h-4 w-4" />
+                                            </Button>
+                                        )}
+                                        {hasMultiple && (
+                                            <Button variant="ghost" size="icon" className="text-muted-foreground">
+                                                <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`} />
+                                            </Button>
+                                        )}
+                                    </div>
                                 </div>
-                                <Button variant="ghost" size="icon" onClick={() => handleOpenModal(account)}>
-                                    <Edit2 className="h-4 w-4" />
-                                </Button>
-                            </div>
-                            <div className="p-6 pt-0 mt-auto">
-                                <div className="text-2xl font-bold">
-                                    Rp {Number(account.current_balance).toLocaleString('id-ID')}
+                                <div className="px-6 pb-6 pt-0">
+                                    <div className="text-2xl font-bold">
+                                        <AmountDisplay amount={group.total} />
+                                    </div>
                                 </div>
+                                
+                                {/* Render sub accounts if expanded */}
+                                {hasMultiple && isExpanded && (
+                                    <div className="bg-muted/30 border-t animate-in slide-in-from-top-2 fade-in duration-200">
+                                        {group.accounts.map((account, index) => (
+                                            <div key={account.id} className={`flex items-center justify-between p-4 px-6 ${index !== group.accounts.length - 1 ? 'border-b' : ''}`}>
+                                                <div>
+                                                    <h4 className="font-medium text-sm">{account.name}</h4>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        {account.type} {account.account_number ? `• ${account.account_number}` : ''}
+                                                    </p>
+                                                    <div className="text-sm font-semibold mt-1">
+                                                        <AmountDisplay amount={Number(account.current_balance)} />
+                                                    </div>
+                                                </div>
+                                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); handleOpenModal(account); }}>
+                                                    <Edit2 className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
-                        </div>
-                    ))
+                        );
+                    })
                 )}
             </div>
 

@@ -3,6 +3,9 @@ export interface Account {
     name: string;
     type: string;
     currency: string;
+    account_number?: string | null;
+    provider_id?: number | null;
+    provider_name?: string | null;
     initial_balance: number;
     current_balance: number;
     is_active: boolean;
@@ -13,6 +16,7 @@ export interface Category {
     id: number;
     name: string;
     type: 'income' | 'expense';
+    parent_id?: number | null;
     icon?: string;
     color?: string;
 }
@@ -51,4 +55,10 @@ export interface PaginatedResponse<T> {
         per_page: number;
         total: number;
     };
+}
+
+export interface Provider {
+    id: number;
+    name: string;
+    type: string;
 }

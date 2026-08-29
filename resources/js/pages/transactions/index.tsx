@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, ArrowRightLeft, TrendingUp, TrendingDown, Pencil } from 'lucide-react';
 import { format } from 'date-fns';
+import AmountDisplay from '@/components/AmountDisplay';
 
 export default function TransactionsIndex() {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -82,7 +83,7 @@ export default function TransactionsIndex() {
                                                 tx.type === 'expense' ? 'text-red-600 dark:text-red-400' : ''
                                             }`}>
                                                 {tx.type === 'income' ? '+' : tx.type === 'expense' ? '-' : ''}
-                                                Rp {Number(tx.amount).toLocaleString('id-ID')}
+                                                <AmountDisplay amount={Number(tx.amount)} showSymbol={false} />
                                             </div>
                                             <Button 
                                                 variant="ghost" 

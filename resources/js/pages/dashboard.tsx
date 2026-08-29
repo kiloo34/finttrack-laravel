@@ -6,6 +6,7 @@ import { Account, Transaction } from '@/types/finance';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Wallet, TrendingUp, TrendingDown, Activity, ArrowRightLeft } from 'lucide-react';
 import { format } from 'date-fns';
+import AmountDisplay from '@/components/AmountDisplay';
 
 export default function Dashboard() {
     const [accounts, setAccounts] = useState<Account[]>([]);
@@ -49,7 +50,7 @@ export default function Dashboard() {
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">
-                                Rp {totalBalance.toLocaleString('id-ID')}
+                                <AmountDisplay amount={totalBalance} />
                             </div>
                             <p className="text-xs text-muted-foreground mt-1">
                                 Across {accounts.length} active accounts
@@ -64,7 +65,7 @@ export default function Dashboard() {
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-                                + Rp {recentIncome.toLocaleString('id-ID')}
+                                + <AmountDisplay amount={recentIncome} showSymbol={false} />
                             </div>
                             <p className="text-xs text-muted-foreground mt-1">
                                 From recent transactions
@@ -79,7 +80,7 @@ export default function Dashboard() {
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold text-red-600 dark:text-red-400">
-                                - Rp {recentExpense.toLocaleString('id-ID')}
+                                - <AmountDisplay amount={recentExpense} showSymbol={false} />
                             </div>
                             <p className="text-xs text-muted-foreground mt-1">
                                 From recent transactions
@@ -135,7 +136,7 @@ export default function Dashboard() {
                                                 tx.type === 'expense' ? 'text-red-600 dark:text-red-400' : ''
                                             }`}>
                                                 {tx.type === 'income' ? '+' : tx.type === 'expense' ? '-' : ''}
-                                                Rp {Number(tx.amount).toLocaleString('id-ID')}
+                                                <AmountDisplay amount={Number(tx.amount)} showSymbol={false} />
                                             </div>
                                         </div>
                                     ))}
@@ -177,7 +178,7 @@ export default function Dashboard() {
                                                 <p className="text-xs text-muted-foreground capitalize">{account.type.replace('_', ' ')}</p>
                                             </div>
                                             <div className="font-semibold">
-                                                Rp {Number(account.current_balance).toLocaleString('id-ID')}
+                                                <AmountDisplay amount={Number(account.current_balance)} />
                                             </div>
                                         </div>
                                     ))}
