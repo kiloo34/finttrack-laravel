@@ -2,17 +2,17 @@
 
 namespace Database\Factories;
 
-use App\Domain\Account\Models\Account;
-use App\Domain\Category\Models\Category;
-use App\Domain\Transaction\Models\Transaction;
+use App\Modules\Account\Infrastructure\Persistence\Eloquent\Models\AccountModel;
+use App\Modules\Category\Infrastructure\Persistence\Eloquent\Models\CategoryModel;
+use App\Modules\Transaction\Infrastructure\Persistence\Eloquent\Models\TransactionModel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<Transaction>
+ * @extends Factory<TransactionModel>
  */
 class TransactionFactory extends Factory
 {
-    protected $model = Transaction::class;
+    protected $model = TransactionModel::class;
 
     /**
      * Define the model's default state.
@@ -22,8 +22,8 @@ class TransactionFactory extends Factory
     public function definition(): array
     {
         return [
-            'account_id' => Account::factory(),
-            'category_id' => Category::factory()->system(),
+            'account_id' => AccountModel::factory(),
+            'category_id' => CategoryModel::factory()->system(),
             'type' => $this->faker->randomElement(['income', 'expense', 'adjustment']),
             'amount' => $this->faker->randomFloat(2, 1000, 5_000_000),
             'currency' => 'IDR',
