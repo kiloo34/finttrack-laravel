@@ -9,14 +9,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
+import { Combobox } from '@/components/ui/combobox';
 import axios from '@/lib/axios';
+import { usePage } from '@inertiajs/react';
 import { Account } from '@/types/finance';
 
 interface AccountModalProps {
@@ -27,12 +22,18 @@ interface AccountModalProps {
 }
 
 export default function AccountModal({ isOpen, onClose, onSuccess, account }: AccountModalProps) {
+    const { constants } = usePage<any>().props;
+    const ACCOUNT_TYPES = constants?.ACCOUNT_TYPES || [];
+    const CURRENCIES = constants?.CURRENCIES || [];
+    const PROVIDERS = constants?.PROVIDERS || [];
     const [isLoading, setIsLoading] = useState(false);
     
     // Form state
     const [name, setName] = useState('');
     const [type, setType] = useState('bank');
     const [currency, setCurrency] = useState('IDR');
+    const [providerId, setProviderId] = useState<string>('');
+    const [accountNumber, setAccountNumber] = useState('');
     const [initialBalance, setInitialBalance] = useState('');
     const [errors, setErrors] = useState<Record<string, string[]>>({});
 
@@ -42,6 +43,8 @@ export default function AccountModal({ isOpen, onClose, onSuccess, account }: Ac
                 setName(account.name);
                 setType(account.type);
                 setCurrency(account.currency);
+                setProviderId(account.provider_id ? account.provider_id.toString() : '');
+                setAccountNumber(account.account_number || '');
                 setInitialBalance(account.initial_balance.toString());
             } else {
                 resetForm();
@@ -53,6 +56,8 @@ export default function AccountModal({ isOpen, onClose, onSuccess, account }: Ac
         setName('');
         setType('bank');
         setCurrency('IDR');
+        setProviderId('');
+        setAccountNumber('');
         setInitialBalance('');
         setErrors({});
     };
@@ -67,9 +72,11 @@ export default function AccountModal({ isOpen, onClose, onSuccess, account }: Ac
                 name,
                 type,
                 currency,
+                provider_id: providerId ? parseInt(providerId, 10) : null,
+                account_number: accountNumber || null,
                 initial_balance: parseFloat(initialBalance) || 0,
+                is_active: true
             };
-
             if (account) {
                 await axios.put(`/accounts/${account.id}`, payload);
             } else {
@@ -103,40 +110,53 @@ export default function AccountModal({ isOpen, onClose, onSuccess, account }: Ac
                             id="name" 
                             value={name} 
                             onChange={(e) => setName(e.target.value)} 
-                            placeholder="e.g. BCA, OVO, Cash"
+                            placeholder="e.g. TabunganKu, Payroll, Main Wallet"
                         />
                         {errors.name && <p className="text-sm text-red-500">{errors.name[0]}</p>}
                     </div>
 
                     <div className="space-y-2">
+                        <Label htmlFor="provider_id">Provider / Bank (Optional)</Label>
+                        <Combobox
+                            options={PROVIDERS.map((p: any) => ({ label: p.name, value: p.id.toString() }))}
+                            value={providerId}
+                            onChange={setProviderId}
+                            placeholder="Select Provider (e.g. BCA, Mandiri)"
+                        />
+                        {errors.provider_id && <p className="text-sm text-red-500">{errors.provider_id[0]}</p>}
+                    </div>
+
+                    <div className="space-y-2">
                         <Label htmlFor="type">Account Type</Label>
-                        <Select value={type} onValueChange={setType}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select type" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="bank">Bank</SelectItem>
-                                <SelectItem value="e-wallet">E-Wallet</SelectItem>
-                                <SelectItem value="cash">Cash</SelectItem>
-                                <SelectItem value="credit_card">Credit Card</SelectItem>
-                                <SelectItem value="investment">Investment</SelectItem>
-                            </SelectContent>
-                        </Select>
+                        <Combobox
+                            options={ACCOUNT_TYPES}
+                            value={type}
+                            onChange={setType}
+                            placeholder="Select type"
+                        />
                         {errors.type && <p className="text-sm text-red-500">{errors.type[0]}</p>}
                     </div>
 
                     <div className="space-y-2">
                         <Label htmlFor="currency">Currency</Label>
-                        <Select value={currency} onValueChange={setCurrency}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select currency" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="IDR">IDR</SelectItem>
-                                <SelectItem value="USD">USD</SelectItem>
-                            </SelectContent>
-                        </Select>
+                        <Combobox
+                            options={CURRENCIES}
+                            value={currency}
+                            onChange={setCurrency}
+                            placeholder="Select currency"
+                        />
                         {errors.currency && <p className="text-sm text-red-500">{errors.currency[0]}</p>}
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="accountNumber">Account/Phone Number</Label>
+                        <Input 
+                            id="accountNumber" 
+                            value={accountNumber} 
+                            onChange={(e) => setAccountNumber(e.target.value)} 
+                            placeholder="e.g. 1234567890"
+                        />
+                        {errors.account_number && <p className="text-sm text-red-500">{errors.account_number[0]}</p>}
                     </div>
 
                     {!account && (

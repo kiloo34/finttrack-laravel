@@ -3,6 +3,9 @@ export interface Account {
     name: string;
     type: string;
     currency: string;
+    account_number?: string | null;
+    provider_id?: number | null;
+    provider_name?: string | null;
     initial_balance: number;
     current_balance: number;
     is_active: boolean;
@@ -13,6 +16,7 @@ export interface Category {
     id: number;
     name: string;
     type: 'income' | 'expense';
+    parent_id?: number | null;
     icon?: string;
     color?: string;
 }
@@ -26,11 +30,29 @@ export interface Transaction {
     currency: string;
     transaction_date: string;
     description: string | null;
+    status?: 'pending' | 'completed' | 'cancelled';
+    reference?: string | null;
     created_at: string;
     
     // Relationships if loaded
     account?: Account;
     category?: Category;
+}
+
+export interface RecurringTransaction {
+    id: number;
+    user_id: number;
+    account_id: number;
+    destination_account_id: number | null;
+    category_id: number | null;
+    type: 'income' | 'expense' | 'transfer';
+    amount: number | string;
+    currency: string;
+    description: string | null;
+    frequency: 'daily' | 'weekly' | 'monthly' | 'yearly';
+    execution_type: 'auto_complete' | 'draft';
+    next_run_date: string;
+    is_active: boolean;
 }
 
 export interface Transfer {
@@ -51,4 +73,10 @@ export interface PaginatedResponse<T> {
         per_page: number;
         total: number;
     };
+}
+
+export interface Provider {
+    id: number;
+    name: string;
+    type: string;
 }

@@ -1,7 +1,7 @@
 <?php
 
-use App\Domain\Category\Models\Category;
-use App\Domain\User\Models\User;
+use App\Modules\Category\Infrastructure\Persistence\Eloquent\Models\CategoryModel as Category;
+use App\Modules\User\Infrastructure\Persistence\Eloquent\Models\UserModel as User;
 use Illuminate\Database\QueryException;
 
 // --- Model & Relationship Tests ---
@@ -33,6 +33,7 @@ test('category has correct fillable fields', function () {
 
     expect($category->getFillable())->toBe([
         'user_id',
+        'parent_id',
         'name',
         'type',
         'is_system',

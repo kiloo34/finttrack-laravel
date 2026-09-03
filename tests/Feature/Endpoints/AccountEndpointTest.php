@@ -1,9 +1,10 @@
 <?php
 
-use App\Domain\Account\Models\Account;
-use App\Domain\User\Models\User;
+use App\Modules\Account\Infrastructure\Persistence\Eloquent\Models\AccountModel as Account;
+use App\Modules\User\Infrastructure\Persistence\Eloquent\Models\UserModel as User;
 
 beforeEach(function () {
+    $this->artisan('db:seed', ['--class' => 'ConstantsSeeder']);
     $this->user = User::factory()->create();
 });
 

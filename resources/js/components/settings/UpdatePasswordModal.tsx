@@ -1,6 +1,6 @@
 import { Form } from '@inertiajs/react';
 import { useRef } from 'react';
-import SecurityController from '@/actions/App/Http/Controllers/Settings/SecurityController';
+import SecurityController from '@/actions/App/Modules/User/Presentation/Http/Controllers/Settings/SecurityController';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
 import { Button } from '@/components/ui/button';
@@ -38,8 +38,8 @@ export default function UpdatePasswordModal({ isOpen, onClose, passwordRules }: 
                     {...SecurityController.update.form()}
                     options={{
                         preserveScroll: true,
-                        onSuccess: () => onClose(),
                     }}
+                    onSuccess={() => onClose()}
                     resetOnError={[
                         'password',
                         'password_confirmation',

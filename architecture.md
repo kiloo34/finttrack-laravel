@@ -188,6 +188,13 @@ interface CustomerPublicApiInterface
 }
 ```
 
+### 5.3 Event-Driven Architecture for Side Effects
+Seluruh efek samping lintas modul (*side-effects*) seperti mencatat Ledger, mengirim notifikasi, atau memperbarui Cache **WAJIB** dikelola melalui **Domain Events** dan **Event Listeners**.
+1. **Domain Event Generation:** Entitas menggunakan trait `HasDomainEvents` untuk merekam event yang berisi *primitive payloads* (tanpa membawa entitas utuh / model Eloquent).
+2. **Repository Dispatching:** Repositori mem-flush event dari entitas dan menyiarkannya via fungsi `event()` bawaan Laravel. Eksekusi ini **WAJIB dibungkus di dalam `DB::transaction()`**.
+3. **Application Listeners:** Listener ditugaskan pada Application layer modul penerima untuk bereaksi (Sinkron untuk integritas data mutlak, Asinkron untuk beban kerja ringan).
+
+
 ---
 
 ## 6. Implementation Code Guidelines
@@ -196,13 +203,17 @@ interface CustomerPublicApiInterface
 ```php
 namespace App\Modules\Order\Domain\Entities;
 
+use App\Modules\Order\Domain\Events\OrderCreated;
 use App\Modules\Order\Domain\ValueObjects\OrderId;
 use App\Modules\Order\Domain\ValueObjects\Money;
 use App\Modules\Order\Domain\ValueObjects\OrderStatus;
 use App\Modules\Order\Domain\Exceptions\InvalidOrderOperationException;
+use App\Shared\Domain\Traits\HasDomainEvents;
 
 final class Order
 {
+    use HasDomainEvents;
+
     private function __construct(
         private readonly OrderId $id,
         private readonly string $customerId,
@@ -213,13 +224,17 @@ final class Order
 
     public static function create(string $customerId, Money $totalAmount): self
     {
-        return new self(
+        $order = new self(
             id: OrderId::generate(),
             customerId: $customerId,
             totalAmount: $totalAmount,
             status: OrderStatus::PENDING,
             createdAt: new \DateTimeImmutable()
         );
+
+        $order->recordEvent(new OrderCreated($order->getId()->value(), $customerId));
+
+        return $order;
     }
 
     public function markAsPaid(): void
@@ -298,16 +313,22 @@ final class EloquentOrderRepository implements OrderRepositoryInterface
 {
     public function save(Order $order): void
     {
-        OrderModel::query()->updateOrCreate(
-            ['id' => $order->getId()->value()],
-            [
-                'customer_id' => $order->getCustomerId(),
-                'total_amount' => $order->getTotalAmount()->getAmountInCents(),
-                'currency' => $order->getTotalAmount()->getCurrency(),
-                'status' => $order->getStatus()->value,
-                'created_at' => $order->getCreatedAt()->format('Y-m-d H:i:s'),
-            ]
-        );
+        \Illuminate\Support\Facades\DB::transaction(function () use ($order) {
+            OrderModel::query()->updateOrCreate(
+                ['id' => $order->getId()->value()],
+                [
+                    'customer_id' => $order->getCustomerId(),
+                    'total_amount' => $order->getTotalAmount()->getAmountInCents(),
+                    'currency' => $order->getTotalAmount()->getCurrency(),
+                    'status' => $order->getStatus()->value,
+                    'created_at' => $order->getCreatedAt()->format('Y-m-d H:i:s'),
+                ]
+            );
+
+            foreach ($order->flushEvents() as $event) {
+                event($event);
+            }
+        });
     }
 
     public function findById(OrderId $id): ?Order

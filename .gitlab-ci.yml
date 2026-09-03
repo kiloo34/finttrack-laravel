@@ -10,6 +10,7 @@ stages:
   - test
   - secret-detection
   - create-mr
+  - deploy
 
 pint_style_check:
   stage: code-quality
@@ -35,7 +36,7 @@ larastan_analysis:
   script:
     - vendor/bin/phpstan analyse --memory-limit=2G
 
-sast:
+.sast-analyzer:
   stage: test
   rules:
     - if: '$CI_PIPELINE_SOURCE != "schedule"'
@@ -201,3 +202,11 @@ scheduled_merge_qa_to_main:
       fi
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
+
+deploy_fly_io:
+  stage: deploy
+  image: flyio/flyctl:latest
+  script:
+    - flyctl deploy --remote-only
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE != "schedule"'

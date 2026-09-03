@@ -1,9 +1,9 @@
 <?php
 
-use App\Domain\Account\Models\Account;
-use App\Domain\Category\Models\Category;
-use App\Domain\Ledger\Models\LedgerEntry;
-use App\Domain\Transaction\Models\Transaction;
+use App\Modules\Account\Infrastructure\Persistence\Eloquent\Models\AccountModel as Account;
+use App\Modules\Category\Infrastructure\Persistence\Eloquent\Models\CategoryModel as Category;
+use App\Modules\Ledger\Infrastructure\Persistence\Eloquent\Models\LedgerEntryModel as LedgerEntry;
+use App\Modules\Transaction\Infrastructure\Persistence\Eloquent\Models\TransactionModel as Transaction;
 
 // --- Model & Relationship Tests ---
 

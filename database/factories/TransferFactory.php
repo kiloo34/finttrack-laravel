@@ -2,16 +2,16 @@
 
 namespace Database\Factories;
 
-use App\Domain\Account\Models\Account;
-use App\Domain\Transfer\Models\Transfer;
+use App\Modules\Account\Infrastructure\Persistence\Eloquent\Models\AccountModel;
+use App\Modules\Transfer\Infrastructure\Persistence\Eloquent\Models\TransferModel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<Transfer>
+ * @extends Factory<TransferModel>
  */
 class TransferFactory extends Factory
 {
-    protected $model = Transfer::class;
+    protected $model = TransferModel::class;
 
     /**
      * Define the model's default state.
@@ -22,12 +22,12 @@ class TransferFactory extends Factory
     {
         // Each call creates two separate accounts by default
         return [
-            'from_account_id' => Account::factory(),
+            'from_account_id' => AccountModel::factory(),
             'to_account_id' => function (array $attributes) {
-                /** @var Account $fromAccount */
-                $fromAccount = Account::find($attributes['from_account_id']);
+                /** @var AccountModel $fromAccount */
+                $fromAccount = AccountModel::find($attributes['from_account_id']);
 
-                return Account::factory()->create(['user_id' => $fromAccount->user_id])->id;
+                return AccountModel::factory()->create(['user_id' => $fromAccount->user_id])->id;
             },
             'amount' => $this->faker->randomFloat(2, 10000, 5_000_000),
             'currency' => 'IDR',

@@ -2,6 +2,13 @@
 
 namespace App\Providers;
 
+use App\Modules\Account\Providers\AccountServiceProvider;
+use App\Modules\Audit\Providers\AuditServiceProvider;
+use App\Modules\Category\Providers\CategoryServiceProvider;
+use App\Modules\Ledger\Providers\LedgerServiceProvider;
+use App\Modules\Transaction\Providers\TransactionServiceProvider;
+use App\Modules\Transfer\Providers\TransferServiceProvider;
+use App\Modules\User\Providers\UserServiceProvider;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -15,7 +22,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Register all Modular Monolith module providers
+        $this->app->register(UserServiceProvider::class);
+        $this->app->register(LedgerServiceProvider::class);
+        $this->app->register(AuditServiceProvider::class);
+        $this->app->register(AccountServiceProvider::class);
+        $this->app->register(CategoryServiceProvider::class);
+        $this->app->register(TransactionServiceProvider::class);
+        $this->app->register(TransferServiceProvider::class);
     }
 
     /**

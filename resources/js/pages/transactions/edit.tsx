@@ -6,7 +6,10 @@ import { Transaction } from '@/types/finance';
 import axios from '@/lib/axios';
 import { Loader2 } from 'lucide-react';
 
-export default function EditTransaction({ id }: { id: string }) {
+export default function EditTransaction({ id: propId }: { id?: string }) {
+    // Route::inertia() does not pass route params as props,
+    // so we extract the ID from the URL path as a fallback.
+    const extractedId = propId || window.location.pathname.split('/').filter(Boolean).find((_, i, arr) => arr[i - 1] === 'transactions');
     const [transaction, setTransaction] = useState<Transaction | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
@@ -14,8 +17,7 @@ export default function EditTransaction({ id }: { id: string }) {
     useEffect(() => {
         const fetchTransaction = async () => {
             try {
-                // Fetch the transaction by ID using the API
-                const res = await axios.get<{ data: Transaction }>(`/transactions/${id}`);
+                const res = await axios.get<{ data: Transaction }>(`/transactions/${extractedId}`);
                 setTransaction(res.data.data);
             } catch (err) {
                 console.error("Failed to load transaction", err);
@@ -25,10 +27,13 @@ export default function EditTransaction({ id }: { id: string }) {
             }
         };
 
-        if (id) {
+        if (extractedId) {
             fetchTransaction();
+        } else {
+            setError('Transaction ID not found.');
+            setIsLoading(false);
         }
-    }, [id]);
+    }, [extractedId]);
 
     return (
         <>

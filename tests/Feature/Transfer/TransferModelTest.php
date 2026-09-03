@@ -1,9 +1,9 @@
 <?php
 
-use App\Domain\Account\Models\Account;
-use App\Domain\Ledger\Models\LedgerEntry;
-use App\Domain\Transfer\Models\Transfer;
-use App\Domain\User\Models\User;
+use App\Modules\Account\Infrastructure\Persistence\Eloquent\Models\AccountModel as Account;
+use App\Modules\Ledger\Infrastructure\Persistence\Eloquent\Models\LedgerEntryModel as LedgerEntry;
+use App\Modules\Transfer\Infrastructure\Persistence\Eloquent\Models\TransferModel as Transfer;
+use App\Modules\User\Infrastructure\Persistence\Eloquent\Models\UserModel as User;
 use Illuminate\Support\Facades\DB;
 
 // --- Model & Relationship Tests ---

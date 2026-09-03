@@ -2,16 +2,16 @@
 
 namespace Database\Factories;
 
-use App\Domain\Account\Models\Account;
-use App\Domain\User\Models\User;
+use App\Modules\Account\Infrastructure\Persistence\Eloquent\Models\AccountModel;
+use App\Modules\User\Infrastructure\Persistence\Eloquent\Models\UserModel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<Account>
+ * @extends Factory<AccountModel>
  */
 class AccountFactory extends Factory
 {
-    protected $model = Account::class;
+    protected $model = AccountModel::class;
 
     /**
      * Define the model's default state.
@@ -21,7 +21,7 @@ class AccountFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => User::factory(),
+            'user_id' => UserModel::factory(),
             'name' => $this->faker->words(2, true),
             'type' => $this->faker->randomElement(['cash', 'bank', 'e_wallet', 'credit_card', 'investment', 'other']),
             'currency' => 'IDR',
