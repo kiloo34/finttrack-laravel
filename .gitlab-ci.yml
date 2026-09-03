@@ -36,7 +36,7 @@ larastan_analysis:
   script:
     - vendor/bin/phpstan analyse --memory-limit=2G
 
-sast:
+.sast-analyzer:
   stage: test
   rules:
     - if: '$CI_PIPELINE_SOURCE != "schedule"'
