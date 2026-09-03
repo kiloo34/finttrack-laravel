@@ -30,11 +30,29 @@ export interface Transaction {
     currency: string;
     transaction_date: string;
     description: string | null;
+    status?: 'pending' | 'completed' | 'cancelled';
+    reference?: string | null;
     created_at: string;
     
     // Relationships if loaded
     account?: Account;
     category?: Category;
+}
+
+export interface RecurringTransaction {
+    id: number;
+    user_id: number;
+    account_id: number;
+    destination_account_id: number | null;
+    category_id: number | null;
+    type: 'income' | 'expense' | 'transfer';
+    amount: number | string;
+    currency: string;
+    description: string | null;
+    frequency: 'daily' | 'weekly' | 'monthly' | 'yearly';
+    execution_type: 'auto_complete' | 'draft';
+    next_run_date: string;
+    is_active: boolean;
 }
 
 export interface Transfer {

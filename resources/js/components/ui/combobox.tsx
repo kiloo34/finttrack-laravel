@@ -88,7 +88,7 @@ export function Combobox({
   }, [safeOptions]);
 
   return (
-    <Popover open={open} onOpenChange={(isOpen) => {
+    <Popover modal={true} open={open} onOpenChange={(isOpen) => {
       setOpen(isOpen)
       if (!isOpen) setSearchQuery("") // Clear search when closed
     }}>

@@ -146,7 +146,7 @@ export default function TransactionForm({ initialData }: TransactionFormProps) {
     const accountOptions = accounts
         .filter(account => account.type !== 'investment')
         .map(account => ({
-        label: `${account.name} ${account.account_number ? `(${account.account_number})` : ''} - Rp ${Number(account.current_balance).toLocaleString('id-ID')}`,
+        label: account.account_number ? `${account.name} - ${account.account_number}` : account.name,
         value: account.id.toString(),
         group: account.provider_name || 'Others'
     }));
@@ -271,7 +271,7 @@ export default function TransactionForm({ initialData }: TransactionFormProps) {
                                 <Combobox
                                     options={TRANSACTION_TYPES}
                                     value={type}
-                                    onChange={setType}
+                                    onChange={(value) => setType(value as any)}
                                     placeholder="Select type"
                                     disabled={isEditing}
                                 />

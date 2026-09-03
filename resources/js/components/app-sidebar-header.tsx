@@ -3,6 +3,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { Eye, EyeOff } from 'lucide-react';
 import { usePrivacy } from '@/contexts/PrivacyContext';
+import { NotificationDropdown } from '@/components/NotificationDropdown';
 import type { BreadcrumbItem as BreadcrumbItemType } from '@/types';
 
 export function AppSidebarHeader({
@@ -20,6 +21,7 @@ export function AppSidebarHeader({
             </div>
             
             <div className="ml-auto flex items-center gap-2">
+                <NotificationDropdown />
                 <Button 
                     variant="ghost" 
                     size="icon" 
