@@ -41,6 +41,7 @@ test('system categories cannot be deleted or modified', function () {
     $systemCategory = App\Modules\Category\Domain\Entities\Category::reconstitute(
         id: 1,
         userId: null,
+        parentId: null,
         name: 'System Category',
         type: 'expense',
         isSystem: true,

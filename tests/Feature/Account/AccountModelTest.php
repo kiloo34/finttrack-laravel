@@ -29,6 +29,7 @@ test('account has correct fillable fields', function () {
         'type',
         'currency',
         'account_number',
+        'provider_id',
         'initial_balance',
         'is_active',
     ]);

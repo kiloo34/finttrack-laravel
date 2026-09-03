@@ -33,6 +33,7 @@ test('category has correct fillable fields', function () {
 
     expect($category->getFillable())->toBe([
         'user_id',
+        'parent_id',
         'name',
         'type',
         'is_system',
