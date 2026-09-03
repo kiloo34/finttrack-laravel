@@ -2,10 +2,10 @@
 
 namespace App\Modules\Transfer\Application\UseCases;
 
-use App\Modules\Transfer\Application\DTOs\TransferOutput;
-use App\Modules\Transfer\Domain\Repositories\TransferRepositoryInterface;
 use App\Modules\Account\Domain\Repositories\AccountRepositoryInterface;
 use App\Modules\Account\Domain\ValueObjects\AccountId;
+use App\Modules\Transfer\Application\DTOs\TransferOutput;
+use App\Modules\Transfer\Domain\Repositories\TransferRepositoryInterface;
 use Illuminate\Auth\Access\AuthorizationException;
 
 final class GetTransferByIdUseCase

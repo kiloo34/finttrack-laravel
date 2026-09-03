@@ -2,15 +2,21 @@
 
 namespace App\Modules\Transaction\Domain\Entities;
 
+use App\Modules\Transaction\Domain\Events\TransactionCreated;
+use App\Modules\Transaction\Domain\Events\TransactionDeleted;
+use App\Modules\Transaction\Domain\Events\TransactionUpdated;
 use App\Modules\Transaction\Domain\ValueObjects\TransactionStatus;
+use App\Shared\Domain\Traits\HasDomainEvents;
 
 /**
  * Pure PHP Transaction Domain Entity.
  */
 final class Transaction
 {
+    use HasDomainEvents;
+
     private function __construct(
-        private readonly int $id,
+        private int $id,
         private int $accountId,
         private ?int $categoryId,
         private string $type,
@@ -70,6 +76,23 @@ final class Transaction
         return new self(...func_get_args());
     }
 
+    public function assignId(int $id): void
+    {
+        $this->id = $id;
+    }
+
+    public function recordCreatedEvent(): void
+    {
+        $this->recordEvent(new TransactionCreated(
+            transactionId: $this->id,
+            accountId: $this->accountId,
+            amount: (float) $this->amount,
+            direction: $this->ledgerDirection(),
+            currency: $this->currency,
+            status: $this->status->value
+        ));
+    }
+
     public function update(
         int $accountId,
         ?int $categoryId,
@@ -89,6 +112,35 @@ final class Transaction
         $this->description = $description;
         $this->reference = $reference;
         $this->updatedAt = new \DateTimeImmutable;
+
+        $this->recordEvent(new TransactionUpdated(
+            transactionId: $this->id,
+            accountId: $this->accountId,
+            amount: (float) $this->amount,
+            direction: $this->ledgerDirection(),
+            currency: $this->currency,
+            status: $this->status->value
+        ));
+    }
+
+    public function updateStatus(TransactionStatus $status): void
+    {
+        $this->status = $status;
+        $this->updatedAt = new \DateTimeImmutable;
+
+        $this->recordEvent(new TransactionUpdated(
+            transactionId: $this->id,
+            accountId: $this->accountId,
+            amount: (float) $this->amount,
+            direction: $this->ledgerDirection(),
+            currency: $this->currency,
+            status: $this->status->value
+        ));
+    }
+
+    public function markAsDeleted(): void
+    {
+        $this->recordEvent(new TransactionDeleted($this->id));
     }
 
     public function ledgerDirection(): string

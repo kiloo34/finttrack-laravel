@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Modules\Account\Infrastructure\Persistence\Eloquent\Models\AccountTypeModel;
 use App\Modules\Account\Infrastructure\Persistence\Eloquent\Models\CurrencyModel;
+use App\Modules\Account\Infrastructure\Persistence\Eloquent\Models\ProviderModel;
 use App\Modules\Category\Infrastructure\Persistence\Eloquent\Models\CategoryTypeModel;
 use App\Modules\Transaction\Infrastructure\Persistence\Eloquent\Models\TransactionTypeModel;
 use Illuminate\Http\Request;
@@ -55,7 +56,7 @@ class HandleInertiaRequests extends Middleware
                         'CATEGORY_TYPES' => CategoryTypeModel::all()->values()->toArray(),
                         'CURRENCIES' => CurrencyModel::all()->values()->toArray(),
                         'TRANSACTION_TYPES' => TransactionTypeModel::all()->values()->toArray(),
-                        'PROVIDERS' => \App\Modules\Account\Infrastructure\Persistence\Eloquent\Models\ProviderModel::all()->values()->toArray(),
+                        'PROVIDERS' => ProviderModel::all()->values()->toArray(),
                     ];
                 } catch (\Exception $e) {
                     Log::error('Constants Cache Error: '.$e->getMessage());

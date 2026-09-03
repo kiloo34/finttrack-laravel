@@ -14,6 +14,9 @@ class ProviderModel extends Model
         'type',
     ];
 
+    /**
+     * @return HasMany<AccountModel, $this>
+     */
     public function accounts(): HasMany
     {
         return $this->hasMany(AccountModel::class, 'provider_id', 'id');

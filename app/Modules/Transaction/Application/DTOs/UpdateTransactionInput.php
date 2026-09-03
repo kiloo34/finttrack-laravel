@@ -14,5 +14,6 @@ final class UpdateTransactionInput
         public readonly \DateTimeImmutable $transactionDate,
         public readonly ?string $description,
         public readonly ?string $reference,
+        public readonly ?string $status = null,
     ) {}
 }

@@ -5,8 +5,8 @@ namespace App\Modules\Transaction\Presentation\Http\Controllers;
 use App\Modules\Audit\Application\Services\AuditService;
 use App\Modules\Transaction\Application\UseCases\CreateTransactionUseCase;
 use App\Modules\Transaction\Application\UseCases\DeleteTransactionUseCase;
-use App\Modules\Transaction\Application\UseCases\GetTransactionsUseCase;
 use App\Modules\Transaction\Application\UseCases\GetTransactionByIdUseCase;
+use App\Modules\Transaction\Application\UseCases\GetTransactionsUseCase;
 use App\Modules\Transaction\Application\UseCases\UpdateTransactionUseCase;
 use App\Modules\Transaction\Presentation\Http\Requests\StoreTransactionHttpRequest;
 use App\Modules\Transaction\Presentation\Http\Requests\UpdateTransactionHttpRequest;
@@ -32,10 +32,25 @@ final class TransactionController
         /** @var int $userId */
         $userId = auth()->id();
 
-        $filters = $request->only(['account_id', 'category_id', 'type', 'start_date', 'end_date']);
-        $result = $this->getTransactionsUseCase->execute($userId, $filters, 15, (int) $request->input('page', 1));
+        $filters = $request->only([
+            'account_id', 'category_id', 'type', 'start_date', 'end_date',
+            'search', 'min_amount', 'max_amount', 'status'
+        ]);
+        $perPage = (int) $request->input('per_page', 10);
+        if (!in_array($perPage, [10, 20, 50, 100])) {
+            $perPage = 10;
+        }
 
-        return TransactionResource::collection(collect($result['data']));
+        $result = $this->getTransactionsUseCase->execute($userId, $filters, $perPage, (int) $request->input('page', 1));
+
+        return TransactionResource::collection(collect($result['data']))->additional([
+            'meta' => [
+                'current_page' => $result['current_page'],
+                'per_page' => $result['per_page'],
+                'total' => $result['total'],
+                'last_page' => max((int) ceil($result['total'] / max($result['per_page'], 1)), 1),
+            ]
+        ]);
     }
 
     public function store(StoreTransactionHttpRequest $request): JsonResponse

@@ -10,6 +10,8 @@ interface TransactionRepositoryInterface
 
     public function findById(int $id): ?Transaction;
 
+    public function existsSimilarTransaction(int $accountId, string $type, string $amount, \DateTimeInterface $date): bool;
+
     /**
      * @param  array<string, mixed>  $filters  Supports: account_id, category_id, type, start_date, end_date
      * @return array{data: Transaction[], total: int, per_page: int, current_page: int}

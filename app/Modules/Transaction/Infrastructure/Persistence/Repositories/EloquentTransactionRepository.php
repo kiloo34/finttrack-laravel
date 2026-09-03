@@ -2,7 +2,6 @@
 
 namespace App\Modules\Transaction\Infrastructure\Persistence\Repositories;
 
-use App\Modules\Ledger\Infrastructure\Persistence\Eloquent\Models\LedgerEntryModel;
 use App\Modules\Transaction\Domain\Entities\Transaction;
 use App\Modules\Transaction\Domain\Repositories\TransactionRepositoryInterface;
 use App\Modules\Transaction\Infrastructure\Persistence\Eloquent\Mappers\TransactionMapper;
@@ -12,37 +11,29 @@ final class EloquentTransactionRepository implements TransactionRepositoryInterf
 {
     public function save(Transaction $transaction): Transaction
     {
-        $data = TransactionMapper::toPersistence($transaction);
+        return \Illuminate\Support\Facades\DB::transaction(function () use ($transaction) {
+            $data = TransactionMapper::toPersistence($transaction);
 
-        if ($transaction->getId() === 0) {
-            // New transaction — create and write ledger entry
-            $model = TransactionModel::create($data);
-
-            // Create immutable ledger entry
-            LedgerEntryModel::create([
-                'account_id' => $transaction->getAccountId(),
-                'transaction_id' => $model->id,
-                'direction' => $transaction->ledgerDirection(),
-                'amount' => abs((float) $transaction->getAmount()),
-                'currency' => $transaction->getCurrency(),
-            ]);
-        } else {
-            /** @var TransactionModel $model */
-            $model = TransactionModel::query()->findOrFail($transaction->getId());
-            $changed = $model->fill($data)->isDirty(['amount', 'type', 'account_id']);
-            $model->save();
-
-            // Update related ledger entries if financial fields changed
-            if ($changed) {
-                $model->ledgerEntries()->update([
-                    'account_id' => $transaction->getAccountId(),
-                    'direction' => $transaction->ledgerDirection(),
-                    'amount' => abs((float) $transaction->getAmount()),
-                ]);
+            if ($transaction->getId() === 0) {
+                // New transaction
+                $model = TransactionModel::create($data);
+                $transaction->assignId($model->id);
+                $transaction->recordCreatedEvent();
+            } else {
+                // Update existing
+                /** @var TransactionModel $model */
+                $model = TransactionModel::query()->lockForUpdate()->findOrFail($transaction->getId());
+                $model->fill($data);
+                $model->save();
             }
-        }
 
-        return TransactionMapper::toDomain($model);
+            // Dispatch domain events
+            foreach ($transaction->flushEvents() as $event) {
+                event($event);
+            }
+
+            return TransactionMapper::toDomain($model);
+        });
     }
 
     public function findById(int $id): ?Transaction
@@ -50,6 +41,16 @@ final class EloquentTransactionRepository implements TransactionRepositoryInterf
         $model = TransactionModel::query()->find($id);
 
         return $model ? TransactionMapper::toDomain($model) : null;
+    }
+
+    public function existsSimilarTransaction(int $accountId, string $type, string $amount, \DateTimeInterface $date): bool
+    {
+        return TransactionModel::query()
+            ->where('account_id', $accountId)
+            ->where('type', $type)
+            ->where('amount', $amount)
+            ->whereDate('transaction_date', $date)
+            ->exists();
     }
 
     /**
@@ -70,8 +71,27 @@ final class EloquentTransactionRepository implements TransactionRepositoryInterf
         if (! empty($filters['type'])) {
             $query->where('type', $filters['type']);
         }
-        if (! empty($filters['start_date']) && ! empty($filters['end_date'])) {
-            $query->whereBetween('transaction_date', [$filters['start_date'], $filters['end_date']]);
+        if (! empty($filters['search'])) {
+            $searchTerm = '%' . $filters['search'] . '%';
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('description', 'like', $searchTerm)
+                  ->orWhere('reference', 'like', $searchTerm);
+            });
+        }
+        if (isset($filters['min_amount']) && $filters['min_amount'] !== '') {
+            $query->where('amount', '>=', $filters['min_amount']);
+        }
+        if (isset($filters['max_amount']) && $filters['max_amount'] !== '') {
+            $query->where('amount', '<=', $filters['max_amount']);
+        }
+        if (! empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+        if (! empty($filters['start_date'])) {
+            $query->whereDate('transaction_date', '>=', $filters['start_date']);
+        }
+        if (! empty($filters['end_date'])) {
+            $query->whereDate('transaction_date', '<=', $filters['end_date']);
         }
 
         $query->orderBy('transaction_date', 'desc')->orderBy('id', 'desc');
@@ -88,6 +108,20 @@ final class EloquentTransactionRepository implements TransactionRepositoryInterf
 
     public function delete(int $id): void
     {
-        TransactionModel::query()->where('id', $id)->delete();
+        \Illuminate\Support\Facades\DB::transaction(function () use ($id) {
+            $model = TransactionModel::query()->lockForUpdate()->find($id);
+            if (! $model) {
+                return;
+            }
+
+            $transaction = TransactionMapper::toDomain($model);
+            $transaction->markAsDeleted();
+
+            $model->delete();
+
+            foreach ($transaction->flushEvents() as $event) {
+                event($event);
+            }
+        });
     }
 }

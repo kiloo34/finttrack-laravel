@@ -4,8 +4,8 @@ namespace App\Modules\Transfer\Presentation\Http\Controllers;
 
 use App\Modules\Audit\Application\Services\AuditService;
 use App\Modules\Transfer\Application\UseCases\CreateTransferUseCase;
-use App\Modules\Transfer\Application\UseCases\GetTransfersUseCase;
 use App\Modules\Transfer\Application\UseCases\GetTransferByIdUseCase;
+use App\Modules\Transfer\Application\UseCases\GetTransfersUseCase;
 use App\Modules\Transfer\Presentation\Http\Requests\StoreTransferHttpRequest;
 use App\Modules\Transfer\Presentation\Http\Resources\TransferResource;
 use Illuminate\Http\JsonResponse;

@@ -28,6 +28,7 @@ class UpdateTransactionHttpRequest extends FormRequest
             'transaction_date' => ['required', 'date'],
             'description' => ['nullable', 'string', 'max:255'],
             'reference' => ['nullable', 'string', 'max:255'],
+            'status' => ['nullable', 'string', Rule::in(['pending', 'completed', 'failed'])],
         ];
     }
 
@@ -43,6 +44,7 @@ class UpdateTransactionHttpRequest extends FormRequest
             transactionDate: new \DateTimeImmutable($this->string('transaction_date')->toString()),
             description: $this->input('description'),
             reference: $this->input('reference'),
+            status: $this->input('status'),
         );
     }
 }
