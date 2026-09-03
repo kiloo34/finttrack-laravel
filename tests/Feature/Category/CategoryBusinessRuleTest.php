@@ -1,7 +1,8 @@
 <?php
 
-use App\Domain\Category\Models\Category;
-use App\Domain\User\Models\User;
+use App\Modules\Category\Domain\Exceptions\SystemCategoryModificationException;
+use App\Modules\Category\Infrastructure\Persistence\Eloquent\Models\CategoryModel as Category;
+use App\Modules\User\Infrastructure\Persistence\Eloquent\Models\UserModel as User;
 
 // --- Category Business Rules Tests ---
 
@@ -31,12 +32,28 @@ test('availableFor scope returns system categories and user specific categories'
 });
 
 test('system categories cannot be deleted or modified', function () {
-    $systemCategory = Category::factory()->system()->create();
+    $systemCategory = App\Modules\Category\Domain\Entities\Category::create(
+        userId: 0,
+        name: 'System Category',
+        type: 'expense'
+    );
+    // Since create() makes it non-system by default, we must reconstitute it to make it system
+    $systemCategory = App\Modules\Category\Domain\Entities\Category::reconstitute(
+        id: 1,
+        userId: null,
+        parentId: null,
+        name: 'System Category',
+        type: 'expense',
+        isSystem: true,
+        createdAt: new DateTimeImmutable,
+        updatedAt: new DateTimeImmutable
+    );
 
     // Attempting to delete should throw an exception
-    expect(fn () => $systemCategory->delete())->toThrow(Exception::class, 'System categories cannot be deleted.');
+    expect(fn () => $systemCategory->ensureCanBeDeleted())
+        ->toThrow(SystemCategoryModificationException::class, 'System categories cannot be deleted.');
 
     // Attempting to modify name should throw an exception
-    $systemCategory->name = 'Hacked Name';
-    expect(fn () => $systemCategory->save())->toThrow(Exception::class, 'System categories cannot be modified.');
+    expect(fn () => $systemCategory->update('Hacked Name', 'expense'))
+        ->toThrow(SystemCategoryModificationException::class, 'System categories cannot be modified.');
 });

@@ -1,7 +1,7 @@
 <?php
 
-use App\Domain\Account\Models\Account;
-use App\Domain\User\Models\User;
+use App\Modules\Account\Infrastructure\Persistence\Eloquent\Models\AccountModel as Account;
+use App\Modules\User\Infrastructure\Persistence\Eloquent\Models\UserModel as User;
 
 // --- Model & Relationship Tests ---
 
@@ -28,6 +28,8 @@ test('account has correct fillable fields', function () {
         'name',
         'type',
         'currency',
+        'account_number',
+        'provider_id',
         'initial_balance',
         'is_active',
     ]);

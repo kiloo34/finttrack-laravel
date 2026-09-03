@@ -1,10 +1,13 @@
 import { Link, usePage } from '@inertiajs/react';
+import type { PageProps } from '@/types';
 import { BookOpen, Folder, LayoutGrid, Menu, Search } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import AppLogoIcon from '@/components/app-logo-icon';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { Eye, EyeOff } from 'lucide-react';
+import { usePrivacy } from '@/contexts/PrivacyContext';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -64,10 +67,11 @@ const activeItemStyles =
     'text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100';
 
 export function AppHeader({ breadcrumbs = [] }: Props) {
-    const page = usePage();
+    const page = usePage<PageProps>();
     const { auth } = page.props;
     const getInitials = useInitials();
     const { isCurrentUrl, whenCurrentUrl } = useCurrentUrl();
+    const { isPrivacyMode, togglePrivacyMode } = usePrivacy();
 
     return (
         <>
@@ -177,6 +181,15 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                     </div>
 
                     <div className="ml-auto flex items-center space-x-2">
+                        <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={togglePrivacyMode} 
+                            className="h-9 w-9 text-muted-foreground hover:text-foreground"
+                            title={isPrivacyMode ? "Show balances" : "Hide balances"}
+                        >
+                            {isPrivacyMode ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                        </Button>
                         <div className="relative flex items-center space-x-1">
                             <Button
                                 variant="ghost"

@@ -10,17 +10,22 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { Combobox } from '@/components/ui/combobox';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import axios from '@/lib/axios';
+import { usePage } from '@inertiajs/react';
 import { Account, Category, Transaction } from '@/types/finance';
 import { Check, Loader2 } from 'lucide-react';
 import InputError from '@/components/input-error';
+import AmountDisplay from '@/components/AmountDisplay';
 
 interface TransactionFormProps {
     initialData?: Transaction;
 }
 
 export default function TransactionForm({ initialData }: TransactionFormProps) {
+    const { constants } = usePage<any>().props;
+    const TRANSACTION_TYPES = constants?.TRANSACTION_TYPES || [];
     const isEditing = !!initialData;
     const [accounts, setAccounts] = useState<Account[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
@@ -108,7 +113,43 @@ export default function TransactionForm({ initialData }: TransactionFormProps) {
         }
     };
 
+    // Build hierarchical category options using Combobox groups
     const filteredCategories = categories.filter(c => c.type === type);
+    const categoryOptions: { label: string, value: string, group?: string }[] = [];
+    
+    const rootCategories = filteredCategories.filter(c => c.parent_id === null);
+    
+    // First, add all root categories that have NO children as ungrouped options
+    rootCategories.forEach(root => {
+        const children = filteredCategories.filter(c => c.parent_id === root.id);
+        if (children.length === 0) {
+            categoryOptions.push({ label: root.name, value: root.id.toString() });
+        } else {
+            // For root categories with children, add them to their own group 
+            // so they can be selected too, then add their children.
+            categoryOptions.push({ 
+                label: `${root.name} (Top Level)`, 
+                value: root.id.toString(),
+                group: root.name
+            });
+            
+            children.forEach(child => {
+                categoryOptions.push({ 
+                    label: child.name, 
+                    value: child.id.toString(),
+                    group: root.name
+                });
+            });
+        }
+    });
+
+    const accountOptions = accounts
+        .filter(account => account.type !== 'investment')
+        .map(account => ({
+        label: account.account_number ? `${account.name} - ${account.account_number}` : account.name,
+        value: account.id.toString(),
+        group: account.provider_name || 'Others'
+    }));
 
     if (isFetching) {
         return (
@@ -191,18 +232,12 @@ export default function TransactionForm({ initialData }: TransactionFormProps) {
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="account">{type === 'transfer' ? 'Source Account' : 'Account'}</Label>
-                                <Select value={accountId} onValueChange={setAccountId}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select an account" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {accounts.map(account => (
-                                            <SelectItem key={account.id} value={account.id.toString()}>
-                                                {account.name} (Rp {Number(account.current_balance).toLocaleString('id-ID')})
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                <Combobox
+                                    options={accountOptions}
+                                    value={accountId}
+                                    onChange={setAccountId}
+                                    placeholder="Select an account"
+                                />
                                 {errors.account_id && <InputError message={errors.account_id[0]} />}
                                 {errors.from_account_id && <InputError message={errors.from_account_id[0]} />}
                             </div>
@@ -210,20 +245,12 @@ export default function TransactionForm({ initialData }: TransactionFormProps) {
                             {type === 'transfer' && (
                                 <div className="space-y-2">
                                     <Label htmlFor="to_account">Destination Account</Label>
-                                    <Select value={toAccountId} onValueChange={setToAccountId}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select destination account" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {accounts
-                                                .filter(a => a.id.toString() !== accountId)
-                                                .map(account => (
-                                                <SelectItem key={account.id} value={account.id.toString()}>
-                                                    {account.name} (Rp {Number(account.current_balance).toLocaleString('id-ID')})
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                    <Combobox
+                                        options={accountOptions.filter(opt => opt.value !== accountId)}
+                                        value={toAccountId}
+                                        onChange={setToAccountId}
+                                        placeholder="Select destination account"
+                                    />
                                     {errors.to_account_id && <InputError message={errors.to_account_id[0]} />}
                                 </div>
                             )}
@@ -241,16 +268,14 @@ export default function TransactionForm({ initialData }: TransactionFormProps) {
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="type">Type</Label>
-                                <Select value={type} onValueChange={setType} disabled={isEditing}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select type" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="expense">Expense</SelectItem>
-                                        <SelectItem value="income">Income</SelectItem>
-                                        <SelectItem value="transfer">Transfer</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                <Combobox
+                                    options={TRANSACTION_TYPES}
+                                    value={type}
+                                    onChange={(value) => setType(value as any)}
+                                    placeholder="Select type"
+                                    disabled={isEditing}
+                                />
+                                {errors.type && <InputError message={errors.type[0]} />}
                                 {isEditing && <p className="text-xs text-muted-foreground mt-1">Transaction type cannot be changed after creation.</p>}
                             </div>
                         </CardContent>
@@ -265,19 +290,12 @@ export default function TransactionForm({ initialData }: TransactionFormProps) {
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="category">Category (Optional)</Label>
-                                    <Select value={categoryId} onValueChange={setCategoryId}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select a category" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="">None</SelectItem>
-                                            {filteredCategories.map(category => (
-                                                <SelectItem key={category.id} value={category.id.toString()}>
-                                                    {category.name}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                    <Combobox
+                                        options={categoryOptions}
+                                        value={categoryId}
+                                        onChange={setCategoryId}
+                                        placeholder="Select a category"
+                                    />
                                     {errors.category_id && <InputError message={errors.category_id[0]} />}
                                 </div>
                             </CardContent>

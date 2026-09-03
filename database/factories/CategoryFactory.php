@@ -2,16 +2,16 @@
 
 namespace Database\Factories;
 
-use App\Domain\Category\Models\Category;
-use App\Domain\User\Models\User;
+use App\Modules\Category\Infrastructure\Persistence\Eloquent\Models\CategoryModel;
+use App\Modules\User\Infrastructure\Persistence\Eloquent\Models\UserModel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<Category>
+ * @extends Factory<CategoryModel>
  */
 class CategoryFactory extends Factory
 {
-    protected $model = Category::class;
+    protected $model = CategoryModel::class;
 
     /**
      * Define the model's default state.
@@ -21,7 +21,7 @@ class CategoryFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => User::factory(),
+            'user_id' => UserModel::factory(),
             'name' => $this->faker->unique()->word(),
             'type' => $this->faker->randomElement(['income', 'expense']),
             'is_system' => false,

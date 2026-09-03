@@ -1,9 +1,9 @@
 <?php
 
-use App\Domain\Account\Models\Account;
-use App\Domain\Audit\Models\AuditLog;
-use App\Domain\Audit\Services\AuditService;
-use App\Domain\User\Models\User;
+use App\Modules\Account\Infrastructure\Persistence\Eloquent\Models\AccountModel as Account;
+use App\Modules\Audit\Application\Services\AuditService;
+use App\Modules\Audit\Infrastructure\Persistence\Eloquent\Models\AuditLogModel as AuditLog;
+use App\Modules\User\Infrastructure\Persistence\Eloquent\Models\UserModel as User;
 
 // --- AuditLog Model Tests ---
 
@@ -54,12 +54,15 @@ test('audit service logs an action for an authenticated user', function () {
     $this->actingAs($user);
 
     $service = new AuditService;
-    $log = $service->log(
+    $service->log(
         'account.created',
-        $account,
+        Account::class,
+        $account->id,
         [],
         ['name' => $account->name]
     );
+
+    $log = AuditLog::where('auditable_id', $account->id)->first();
 
     expect($log)->toBeInstanceOf(AuditLog::class);
     expect($log->user_id)->toBe($user->id);
@@ -77,12 +80,15 @@ test('audit service records old and new values on update', function () {
     $this->actingAs($user);
 
     $service = new AuditService;
-    $log = $service->log(
+    $service->log(
         'account.updated',
-        $account,
+        Account::class,
+        $account->id,
         ['name' => 'Old Name'],
         ['name' => 'New Name']
     );
+
+    $log = AuditLog::where('auditable_id', $account->id)->first();
 
     expect($log->old_values)->toBe(['name' => 'Old Name']);
     expect($log->new_values)->toBe(['name' => 'New Name']);

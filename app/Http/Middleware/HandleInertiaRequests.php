@@ -2,7 +2,14 @@
 
 namespace App\Http\Middleware;
 
+use App\Modules\Account\Infrastructure\Persistence\Eloquent\Models\AccountTypeModel;
+use App\Modules\Account\Infrastructure\Persistence\Eloquent\Models\CurrencyModel;
+use App\Modules\Account\Infrastructure\Persistence\Eloquent\Models\ProviderModel;
+use App\Modules\Category\Infrastructure\Persistence\Eloquent\Models\CategoryTypeModel;
+use App\Modules\Transaction\Infrastructure\Persistence\Eloquent\Models\TransactionTypeModel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -42,6 +49,27 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'constants' => Cache::remember('system_constants_v4', 3600, function () {
+                try {
+                    return [
+                        'ACCOUNT_TYPES' => AccountTypeModel::all()->values()->toArray(),
+                        'CATEGORY_TYPES' => CategoryTypeModel::all()->values()->toArray(),
+                        'CURRENCIES' => CurrencyModel::all()->values()->toArray(),
+                        'TRANSACTION_TYPES' => TransactionTypeModel::all()->values()->toArray(),
+                        'PROVIDERS' => ProviderModel::all()->values()->toArray(),
+                    ];
+                } catch (\Exception $e) {
+                    Log::error('Constants Cache Error: '.$e->getMessage());
+
+                    return [
+                        'ACCOUNT_TYPES' => [],
+                        'CATEGORY_TYPES' => [],
+                        'CURRENCIES' => [],
+                        'TRANSACTION_TYPES' => [],
+                        'PROVIDERS' => [],
+                    ];
+                }
+            }),
         ];
     }
 }

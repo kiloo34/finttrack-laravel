@@ -16,7 +16,7 @@ import {
 import { dashboard } from '@/routes';
 import type { NavItem } from '@/types';
 
-import { Wallet, Tags, ReceiptText } from 'lucide-react';
+import { Wallet, Tags, ReceiptText, CalendarClock } from 'lucide-react';
 
 const mainNavItems: NavItem[] = [
     {
@@ -28,6 +28,11 @@ const mainNavItems: NavItem[] = [
         title: 'Transactions',
         href: '/transactions',
         icon: ReceiptText,
+    },
+    {
+        title: 'Recurring',
+        href: '/recurring-transactions',
+        icon: CalendarClock,
     },
     {
         title: 'Accounts',

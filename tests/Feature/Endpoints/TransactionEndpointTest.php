@@ -1,11 +1,12 @@
 <?php
 
-use App\Domain\Account\Models\Account;
-use App\Domain\Category\Models\Category;
-use App\Domain\Transaction\Models\Transaction;
-use App\Domain\User\Models\User;
+use App\Modules\Account\Infrastructure\Persistence\Eloquent\Models\AccountModel as Account;
+use App\Modules\Category\Infrastructure\Persistence\Eloquent\Models\CategoryModel as Category;
+use App\Modules\Transaction\Infrastructure\Persistence\Eloquent\Models\TransactionModel as Transaction;
+use App\Modules\User\Infrastructure\Persistence\Eloquent\Models\UserModel as User;
 
 beforeEach(function () {
+    $this->artisan('db:seed', ['--class' => 'ConstantsSeeder']);
     $this->user = User::factory()->create();
     $this->account = Account::factory()->create(['user_id' => $this->user->id]);
     $this->category = Category::factory()->create(['user_id' => $this->user->id, 'type' => 'expense']);

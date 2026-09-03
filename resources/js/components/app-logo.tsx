@@ -1,9 +1,10 @@
 import { usePage } from '@inertiajs/react';
+import type { PageProps } from '@/types';
 
 import AppLogoIcon from '@/components/app-logo-icon';
 
 export default function AppLogo() {
-    const { name } = usePage().props;
+    const { name } = usePage<PageProps>().props;
 
     return (
         <>
