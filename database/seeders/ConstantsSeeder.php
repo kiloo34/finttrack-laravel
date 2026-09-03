@@ -12,12 +12,12 @@ class ConstantsSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('category_types')->insert([
+        DB::table('category_types')->insertOrIgnore([
             ['value' => 'expense', 'label' => 'Expense'],
             ['value' => 'income', 'label' => 'Income'],
         ]);
 
-        DB::table('account_types')->insert([
+        DB::table('account_types')->insertOrIgnore([
             ['value' => 'bank', 'label' => 'Bank'],
             ['value' => 'e_wallet', 'label' => 'E-Wallet'],
             ['value' => 'cash', 'label' => 'Cash'],
@@ -27,12 +27,12 @@ class ConstantsSeeder extends Seeder
             ['value' => 'receivable', 'label' => 'Receivable (Piutang)'],
         ]);
 
-        DB::table('currencies')->insert([
+        DB::table('currencies')->insertOrIgnore([
             ['value' => 'IDR', 'label' => 'IDR'],
             ['value' => 'USD', 'label' => 'USD'],
         ]);
 
-        DB::table('transaction_types')->insert([
+        DB::table('transaction_types')->insertOrIgnore([
             ['value' => 'expense', 'label' => 'Expense'],
             ['value' => 'income', 'label' => 'Income'],
             ['value' => 'transfer', 'label' => 'Transfer'],

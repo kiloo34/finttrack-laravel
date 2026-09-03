@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             ProviderSeeder::class,
         ]);
-        
+
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',

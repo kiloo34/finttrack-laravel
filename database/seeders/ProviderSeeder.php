@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class ProviderSeeder extends Seeder
 {
@@ -27,7 +27,7 @@ class ProviderSeeder extends Seeder
             ['name' => 'Panin Bank', 'type' => 'bank'],
             ['name' => 'Bank Mega', 'type' => 'bank'],
             ['name' => 'BTN', 'type' => 'bank'],
-            
+
             // Digital Banks
             ['name' => 'Bank Jago', 'type' => 'bank'],
             ['name' => 'Jenius (BTPN)', 'type' => 'bank'],
@@ -35,7 +35,7 @@ class ProviderSeeder extends Seeder
             ['name' => 'Blu by BCA', 'type' => 'bank'],
             ['name' => 'Allo Bank', 'type' => 'bank'],
             ['name' => 'Bank Neo Commerce', 'type' => 'bank'],
-            
+
             // E-Wallets
             ['name' => 'GoPay', 'type' => 'ewallet'],
             ['name' => 'OVO', 'type' => 'ewallet'],
@@ -43,13 +43,13 @@ class ProviderSeeder extends Seeder
             ['name' => 'ShopeePay', 'type' => 'ewallet'],
             ['name' => 'LinkAja', 'type' => 'ewallet'],
             ['name' => 'AstraPay', 'type' => 'ewallet'],
-            
+
             // Investment / Others
             ['name' => 'Bibit', 'type' => 'investment'],
             ['name' => 'Bareksa', 'type' => 'investment'],
             ['name' => 'Ajaib', 'type' => 'investment'],
             ['name' => 'Pluang', 'type' => 'investment'],
-            
+
             // Cash
             ['name' => 'Tunai / Cash', 'type' => 'cash'],
         ];
@@ -57,6 +57,7 @@ class ProviderSeeder extends Seeder
         $data = array_map(function ($item) use ($now) {
             $item['created_at'] = $now;
             $item['updated_at'] = $now;
+
             return $item;
         }, $providers);
 
