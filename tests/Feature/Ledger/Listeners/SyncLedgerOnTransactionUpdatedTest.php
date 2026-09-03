@@ -1,10 +1,10 @@
 <?php
 
 use App\Modules\Account\Infrastructure\Persistence\Eloquent\Models\AccountModel;
-use App\Modules\Transaction\Infrastructure\Persistence\Eloquent\Models\TransactionModel;
 use App\Modules\Ledger\Application\Listeners\SyncLedgerOnTransactionUpdated;
 use App\Modules\Ledger\Infrastructure\Persistence\Eloquent\Models\LedgerEntryModel;
 use App\Modules\Transaction\Domain\Events\TransactionUpdated;
+use App\Modules\Transaction\Infrastructure\Persistence\Eloquent\Models\TransactionModel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -22,7 +22,7 @@ test('it creates a new ledger entry if completed and not exists', function () {
         status: 'completed'
     );
 
-    $listener = new SyncLedgerOnTransactionUpdated();
+    $listener = new SyncLedgerOnTransactionUpdated;
     $listener->handle($event);
 
     expect(LedgerEntryModel::count())->toBe(1);
@@ -51,7 +51,7 @@ test('it updates existing ledger entry if completed and already exists', functio
         status: 'completed'
     );
 
-    $listener = new SyncLedgerOnTransactionUpdated();
+    $listener = new SyncLedgerOnTransactionUpdated;
     $listener->handle($event);
 
     expect(LedgerEntryModel::count())->toBe(1);
@@ -80,7 +80,7 @@ test('it deletes existing ledger entry if status changed to pending or cancelled
         status: 'cancelled' // Status changed
     );
 
-    $listener = new SyncLedgerOnTransactionUpdated();
+    $listener = new SyncLedgerOnTransactionUpdated;
     $listener->handle($event);
 
     expect(LedgerEntryModel::count())->toBe(0);

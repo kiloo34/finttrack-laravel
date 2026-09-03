@@ -2,6 +2,13 @@
 
 namespace App\Modules\Ledger\Providers;
 
+use App\Modules\Ledger\Application\Listeners\DeleteLedgerOnTransactionDeleted;
+use App\Modules\Ledger\Application\Listeners\SyncLedgerOnTransactionUpdated;
+use App\Modules\Ledger\Application\Listeners\WriteLedgerOnTransactionCreated;
+use App\Modules\Transaction\Domain\Events\TransactionCreated;
+use App\Modules\Transaction\Domain\Events\TransactionDeleted;
+use App\Modules\Transaction\Domain\Events\TransactionUpdated;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
 class LedgerServiceProvider extends ServiceProvider
@@ -10,19 +17,19 @@ class LedgerServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        \Illuminate\Support\Facades\Event::listen(
-            \App\Modules\Transaction\Domain\Events\TransactionCreated::class,
-            \App\Modules\Ledger\Application\Listeners\WriteLedgerOnTransactionCreated::class,
+        Event::listen(
+            TransactionCreated::class,
+            WriteLedgerOnTransactionCreated::class,
         );
 
-        \Illuminate\Support\Facades\Event::listen(
-            \App\Modules\Transaction\Domain\Events\TransactionUpdated::class,
-            \App\Modules\Ledger\Application\Listeners\SyncLedgerOnTransactionUpdated::class,
+        Event::listen(
+            TransactionUpdated::class,
+            SyncLedgerOnTransactionUpdated::class,
         );
 
-        \Illuminate\Support\Facades\Event::listen(
-            \App\Modules\Transaction\Domain\Events\TransactionDeleted::class,
-            \App\Modules\Ledger\Application\Listeners\DeleteLedgerOnTransactionDeleted::class,
+        Event::listen(
+            TransactionDeleted::class,
+            DeleteLedgerOnTransactionDeleted::class,
         );
     }
 }

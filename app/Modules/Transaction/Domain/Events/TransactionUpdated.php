@@ -16,7 +16,7 @@ final class TransactionUpdated implements DomainEventInterface
         public readonly string $currency,
         public readonly string $status
     ) {
-        $this->occurredAt = new \DateTimeImmutable();
+        $this->occurredAt = new \DateTimeImmutable;
     }
 
     public function occurredAt(): \DateTimeImmutable

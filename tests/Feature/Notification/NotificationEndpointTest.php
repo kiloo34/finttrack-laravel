@@ -2,7 +2,6 @@
 
 use App\Modules\User\Infrastructure\Persistence\Eloquent\Models\UserModel as User;
 use App\Notifications\RecurringTransactionExecutedNotification;
-use Illuminate\Support\Facades\Notification;
 
 beforeEach(function () {
     $this->user = User::factory()->create();

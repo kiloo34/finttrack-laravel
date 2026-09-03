@@ -34,10 +34,10 @@ final class TransactionController
 
         $filters = $request->only([
             'account_id', 'category_id', 'type', 'start_date', 'end_date',
-            'search', 'min_amount', 'max_amount', 'status'
+            'search', 'min_amount', 'max_amount', 'status',
         ]);
         $perPage = (int) $request->input('per_page', 10);
-        if (!in_array($perPage, [10, 20, 50, 100])) {
+        if (! in_array($perPage, [10, 20, 50, 100])) {
             $perPage = 10;
         }
 
@@ -49,7 +49,7 @@ final class TransactionController
                 'per_page' => $result['per_page'],
                 'total' => $result['total'],
                 'last_page' => max((int) ceil($result['total'] / max($result['per_page'], 1)), 1),
-            ]
+            ],
         ]);
     }
 

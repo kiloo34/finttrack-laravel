@@ -6,12 +6,13 @@ use App\Modules\Transaction\Domain\Entities\Transaction;
 use App\Modules\Transaction\Domain\Repositories\TransactionRepositoryInterface;
 use App\Modules\Transaction\Infrastructure\Persistence\Eloquent\Mappers\TransactionMapper;
 use App\Modules\Transaction\Infrastructure\Persistence\Eloquent\Models\TransactionModel;
+use Illuminate\Support\Facades\DB;
 
 final class EloquentTransactionRepository implements TransactionRepositoryInterface
 {
     public function save(Transaction $transaction): Transaction
     {
-        return \Illuminate\Support\Facades\DB::transaction(function () use ($transaction) {
+        return DB::transaction(function () use ($transaction) {
             $data = TransactionMapper::toPersistence($transaction);
 
             if ($transaction->getId() === 0) {
@@ -72,10 +73,10 @@ final class EloquentTransactionRepository implements TransactionRepositoryInterf
             $query->where('type', $filters['type']);
         }
         if (! empty($filters['search'])) {
-            $searchTerm = '%' . $filters['search'] . '%';
+            $searchTerm = '%'.$filters['search'].'%';
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('description', 'like', $searchTerm)
-                  ->orWhere('reference', 'like', $searchTerm);
+                    ->orWhere('reference', 'like', $searchTerm);
             });
         }
         if (isset($filters['min_amount']) && $filters['min_amount'] !== '') {
@@ -108,7 +109,7 @@ final class EloquentTransactionRepository implements TransactionRepositoryInterf
 
     public function delete(int $id): void
     {
-        \Illuminate\Support\Facades\DB::transaction(function () use ($id) {
+        DB::transaction(function () use ($id) {
             $model = TransactionModel::query()->lockForUpdate()->find($id);
             if (! $model) {
                 return;

@@ -1,10 +1,10 @@
 <?php
 
 use App\Modules\Account\Infrastructure\Persistence\Eloquent\Models\AccountModel;
-use App\Modules\Transaction\Infrastructure\Persistence\Eloquent\Models\TransactionModel;
 use App\Modules\Ledger\Application\Listeners\WriteLedgerOnTransactionCreated;
 use App\Modules\Ledger\Infrastructure\Persistence\Eloquent\Models\LedgerEntryModel;
 use App\Modules\Transaction\Domain\Events\TransactionCreated;
+use App\Modules\Transaction\Infrastructure\Persistence\Eloquent\Models\TransactionModel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -22,7 +22,7 @@ test('it creates a ledger entry when transaction is completed', function () {
         status: 'completed'
     );
 
-    $listener = new WriteLedgerOnTransactionCreated();
+    $listener = new WriteLedgerOnTransactionCreated;
     $listener->handle($event);
 
     expect(LedgerEntryModel::count())->toBe(1);
@@ -48,7 +48,7 @@ test('it does not create a ledger entry when transaction is not completed', func
         status: 'pending'
     );
 
-    $listener = new WriteLedgerOnTransactionCreated();
+    $listener = new WriteLedgerOnTransactionCreated;
     $listener->handle($event);
 
     expect(LedgerEntryModel::count())->toBe(0);

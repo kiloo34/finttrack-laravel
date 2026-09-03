@@ -1,10 +1,10 @@
 <?php
 
 use App\Modules\Account\Infrastructure\Persistence\Eloquent\Models\AccountModel;
-use App\Modules\Transaction\Infrastructure\Persistence\Eloquent\Models\TransactionModel;
 use App\Modules\Ledger\Application\Listeners\DeleteLedgerOnTransactionDeleted;
 use App\Modules\Ledger\Infrastructure\Persistence\Eloquent\Models\LedgerEntryModel;
 use App\Modules\Transaction\Domain\Events\TransactionDeleted;
+use App\Modules\Transaction\Infrastructure\Persistence\Eloquent\Models\TransactionModel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -25,7 +25,7 @@ test('it deletes ledger entries associated with the transaction', function () {
 
     $event = new TransactionDeleted(transactionId: $transaction->id);
 
-    $listener = new DeleteLedgerOnTransactionDeleted();
+    $listener = new DeleteLedgerOnTransactionDeleted;
     $listener->handle($event);
 
     expect(LedgerEntryModel::count())->toBe(0);
