@@ -5,6 +5,7 @@ use App\Modules\Transaction\Presentation\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('api')->middleware(['api', 'auth:sanctum'])->as('api.')->group(function () {
+    Route::get('transactions/summary', [TransactionController::class, 'summary'])->name('transactions.summary');
     Route::apiResource('transactions', TransactionController::class);
 
     // Recurring Transactions API

@@ -27,6 +27,7 @@ class StoreAccountHttpRequest extends FormRequest
             'provider_id' => ['nullable', 'integer', Rule::exists('providers', 'id')],
             'initial_balance' => ['nullable', 'numeric', 'min:0'],
             'is_active' => ['nullable', 'boolean'],
+            'sync_frequency' => ['nullable', 'string', Rule::in(['manual', 'daily', 'weekly', 'monthly'])],
         ];
     }
 
@@ -44,6 +45,7 @@ class StoreAccountHttpRequest extends FormRequest
             providerId: $this->input('provider_id') !== null ? (int) $this->input('provider_id') : null,
             initialBalance: number_format((float) $this->input('initial_balance', 0), 2, '.', ''),
             isActive: (bool) $this->input('is_active', true),
+            syncFrequency: $this->string('sync_frequency', 'manual')->toString(),
         );
     }
 }

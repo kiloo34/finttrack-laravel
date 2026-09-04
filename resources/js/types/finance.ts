@@ -9,7 +9,22 @@ export interface Account {
     initial_balance: number;
     current_balance: number;
     is_active: boolean;
+    sync_frequency?: string;
     created_at: string;
+    investment_assets?: InvestmentAsset[];
+}
+
+export interface InvestmentAsset {
+    id: number;
+    account_id: number;
+    name: string;
+    symbol?: string | null;
+    type: string;
+    lots?: number | null;
+    units: number | string;
+    average_buy_price: number | string;
+    current_market_price: number | string;
+    last_synced_at?: string | null;
 }
 
 export interface Category {

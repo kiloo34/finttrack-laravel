@@ -3,7 +3,9 @@
 namespace App\Modules\Account\Providers;
 
 use App\Modules\Account\Domain\Repositories\AccountRepositoryInterface;
+use App\Modules\Account\Domain\Repositories\InvestmentAssetRepositoryInterface;
 use App\Modules\Account\Infrastructure\Persistence\Repositories\EloquentAccountRepository;
+use App\Modules\Account\Infrastructure\Persistence\Repositories\EloquentInvestmentAssetRepository;
 use Illuminate\Support\ServiceProvider;
 
 class AccountServiceProvider extends ServiceProvider
@@ -14,6 +16,10 @@ class AccountServiceProvider extends ServiceProvider
         $this->app->bind(
             AccountRepositoryInterface::class,
             EloquentAccountRepository::class,
+        );
+        $this->app->bind(
+            InvestmentAssetRepositoryInterface::class,
+            EloquentInvestmentAssetRepository::class,
         );
     }
 

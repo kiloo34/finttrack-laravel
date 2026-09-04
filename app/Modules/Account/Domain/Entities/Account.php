@@ -20,6 +20,7 @@ final class Account
         private ?string $providerName,
         private string $initialBalance,
         private bool $isActive,
+        private string $syncFrequency,
         private readonly \DateTimeImmutable $createdAt,
         private \DateTimeImmutable $updatedAt,
     ) {}
@@ -34,6 +35,7 @@ final class Account
         ?string $providerName = null,
         string $initialBalance = '0.00',
         bool $isActive = true,
+        string $syncFrequency = 'manual',
     ): self {
         $now = new \DateTimeImmutable;
 
@@ -48,6 +50,7 @@ final class Account
             providerName: $providerName,
             initialBalance: $initialBalance,
             isActive: $isActive,
+            syncFrequency: $syncFrequency,
             createdAt: $now,
             updatedAt: $now,
         );
@@ -67,6 +70,7 @@ final class Account
         ?string $providerName,
         string $initialBalance,
         bool $isActive,
+        string $syncFrequency,
         \DateTimeImmutable $createdAt,
         \DateTimeImmutable $updatedAt,
     ): self {
@@ -81,12 +85,13 @@ final class Account
             providerName: $providerName,
             initialBalance: $initialBalance,
             isActive: $isActive,
+            syncFrequency: $syncFrequency,
             createdAt: $createdAt,
             updatedAt: $updatedAt,
         );
     }
 
-    public function update(string $name, string $type, ?string $accountNumber, ?int $providerId, ?string $providerName, bool $isActive): void
+    public function update(string $name, string $type, ?string $accountNumber, ?int $providerId, ?string $providerName, bool $isActive, string $syncFrequency): void
     {
         $this->name = $name;
         $this->type = $type;
@@ -94,6 +99,7 @@ final class Account
         $this->providerId = $providerId;
         $this->providerName = $providerName;
         $this->isActive = $isActive;
+        $this->syncFrequency = $syncFrequency;
         $this->updatedAt = new \DateTimeImmutable;
     }
 
@@ -146,6 +152,11 @@ final class Account
     public function isActive(): bool
     {
         return $this->isActive;
+    }
+
+    public function getSyncFrequency(): string
+    {
+        return $this->syncFrequency;
     }
 
     public function getCreatedAt(): \DateTimeImmutable

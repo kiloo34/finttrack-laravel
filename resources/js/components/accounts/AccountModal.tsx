@@ -35,6 +35,7 @@ export default function AccountModal({ isOpen, onClose, onSuccess, account }: Ac
     const [providerId, setProviderId] = useState<string>('');
     const [accountNumber, setAccountNumber] = useState('');
     const [initialBalance, setInitialBalance] = useState('');
+    const [syncFrequency, setSyncFrequency] = useState('manual');
     const [errors, setErrors] = useState<Record<string, string[]>>({});
 
     useEffect(() => {
@@ -46,6 +47,7 @@ export default function AccountModal({ isOpen, onClose, onSuccess, account }: Ac
                 setProviderId(account.provider_id ? account.provider_id.toString() : '');
                 setAccountNumber(account.account_number || '');
                 setInitialBalance(account.initial_balance.toString());
+                setSyncFrequency(account.sync_frequency || 'manual');
             } else {
                 resetForm();
             }
@@ -59,6 +61,7 @@ export default function AccountModal({ isOpen, onClose, onSuccess, account }: Ac
         setProviderId('');
         setAccountNumber('');
         setInitialBalance('');
+        setSyncFrequency('manual');
         setErrors({});
     };
 
@@ -75,7 +78,8 @@ export default function AccountModal({ isOpen, onClose, onSuccess, account }: Ac
                 provider_id: providerId ? parseInt(providerId, 10) : null,
                 account_number: accountNumber || null,
                 initial_balance: parseFloat(initialBalance) || 0,
-                is_active: true
+                is_active: true,
+                sync_frequency: syncFrequency
             };
             if (account) {
                 await axios.put(`/accounts/${account.id}`, payload);
@@ -136,6 +140,24 @@ export default function AccountModal({ isOpen, onClose, onSuccess, account }: Ac
                         />
                         {errors.type && <p className="text-sm text-red-500">{errors.type[0]}</p>}
                     </div>
+
+                    {type === 'investment' && (
+                        <div className="space-y-2">
+                            <Label htmlFor="syncFrequency">Sync Frequency</Label>
+                            <Combobox
+                                options={[
+                                    { label: 'Manual', value: 'manual' },
+                                    { label: 'Daily', value: 'daily' },
+                                    { label: 'Weekly', value: 'weekly' },
+                                    { label: 'Monthly', value: 'monthly' }
+                                ]}
+                                value={syncFrequency}
+                                onChange={setSyncFrequency}
+                                placeholder="Select sync frequency"
+                            />
+                            {errors.sync_frequency && <p className="text-sm text-red-500">{errors.sync_frequency[0]}</p>}
+                        </div>
+                    )}
 
                     <div className="space-y-2">
                         <Label htmlFor="currency">Currency</Label>

@@ -13,5 +13,6 @@ final class UpdateAccountInput
         public readonly ?string $accountNumber,
         public readonly ?int $providerId,
         public readonly bool $isActive,
+        public readonly string $syncFrequency,
     ) {}
 }

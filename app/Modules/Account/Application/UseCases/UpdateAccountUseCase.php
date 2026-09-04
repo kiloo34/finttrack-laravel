@@ -36,6 +36,7 @@ final class UpdateAccountUseCase
             providerId: $input->providerId,
             providerName: null, // Mapper will reload it from DB if needed
             isActive: $input->isActive,
+            syncFrequency: $input->syncFrequency,
         );
 
         $this->accountRepository->save($account);

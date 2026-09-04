@@ -4,14 +4,15 @@ namespace App\Modules\Account\Presentation\Http\Controllers;
 
 use App\Modules\Account\Application\UseCases\CreateAccountUseCase;
 use App\Modules\Account\Application\UseCases\DeleteAccountUseCase;
-use App\Modules\Account\Application\UseCases\GetAccountsUseCase;
 use App\Modules\Account\Application\UseCases\UpdateAccountUseCase;
 use App\Modules\Account\Domain\ValueObjects\AccountId;
+use App\Modules\Account\Infrastructure\Persistence\Eloquent\Models\AccountModel;
 use App\Modules\Account\Presentation\Http\Requests\StoreAccountHttpRequest;
 use App\Modules\Account\Presentation\Http\Requests\UpdateAccountHttpRequest;
 use App\Modules\Account\Presentation\Http\Resources\AccountResource;
 use App\Modules\Audit\Application\Services\AuditService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 
@@ -21,7 +22,6 @@ final class AccountController
         private readonly CreateAccountUseCase $createUseCase,
         private readonly UpdateAccountUseCase $updateUseCase,
         private readonly DeleteAccountUseCase $deleteUseCase,
-        private readonly GetAccountsUseCase $getAccountsUseCase,
         private readonly AuditService $auditService,
     ) {}
 
@@ -29,9 +29,13 @@ final class AccountController
     {
         /** @var int $userId */
         $userId = auth()->id();
-        $outputs = $this->getAccountsUseCase->execute($userId);
 
-        return AccountResource::collection(collect($outputs));
+        $accounts = AccountModel::query()
+            ->with(['provider', 'investmentAssets'])
+            ->where('user_id', $userId)
+            ->get();
+
+        return AccountResource::collection($accounts);
     }
 
     public function store(StoreAccountHttpRequest $request): JsonResponse
@@ -49,15 +53,17 @@ final class AccountController
     {
         /** @var int $userId */
         $userId = auth()->id();
-        $accounts = $this->getAccountsUseCase->execute($userId);
 
-        $output = collect($accounts)->firstWhere('id', $id);
+        $account = AccountModel::query()
+            ->with(['provider', 'investmentAssets'])
+            ->where('id', $id)
+            ->first();
 
-        if (! $output || $output->userId !== $userId) {
+        if (! $account || $account->user_id !== $userId) {
             abort(404, 'Account not found.');
         }
 
-        return (new AccountResource($output))->response();
+        return (new AccountResource($account))->response();
     }
 
     public function update(UpdateAccountHttpRequest $request, string $id): JsonResponse
@@ -75,7 +81,7 @@ final class AccountController
         return (new AccountResource($output))->response();
     }
 
-    public function destroy(string $id): Response
+    public function destroy(Request $request, string $id): Response
     {
         /** @var int $userId */
         $userId = auth()->id();
@@ -83,6 +89,7 @@ final class AccountController
         $this->deleteUseCase->execute(
             accountId: AccountId::fromString($id),
             actingUserId: $userId,
+            reason: $request->input('reason'),
         );
 
         $this->auditService->log('account_deleted', 'account', $id);
