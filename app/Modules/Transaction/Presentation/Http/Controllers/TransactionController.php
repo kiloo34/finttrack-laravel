@@ -7,6 +7,7 @@ use App\Modules\Transaction\Application\UseCases\CreateTransactionUseCase;
 use App\Modules\Transaction\Application\UseCases\DeleteTransactionUseCase;
 use App\Modules\Transaction\Application\UseCases\GetTransactionByIdUseCase;
 use App\Modules\Transaction\Application\UseCases\GetTransactionsUseCase;
+use App\Modules\Transaction\Application\UseCases\GetTransactionSummaryUseCase;
 use App\Modules\Transaction\Application\UseCases\UpdateTransactionUseCase;
 use App\Modules\Transaction\Presentation\Http\Requests\StoreTransactionHttpRequest;
 use App\Modules\Transaction\Presentation\Http\Requests\UpdateTransactionHttpRequest;
@@ -24,6 +25,7 @@ final class TransactionController
         private readonly DeleteTransactionUseCase $deleteUseCase,
         private readonly GetTransactionsUseCase $getTransactionsUseCase,
         private readonly GetTransactionByIdUseCase $getTransactionByIdUseCase,
+        private readonly GetTransactionSummaryUseCase $getSummaryUseCase,
         private readonly AuditService $auditService,
     ) {}
 
@@ -100,5 +102,25 @@ final class TransactionController
         $this->auditService->log('transaction_deleted', 'transaction', $id);
 
         return response()->noContent();
+    }
+
+    public function summary(Request $request): JsonResponse
+    {
+        /** @var int $userId */
+        $userId = auth()->id();
+
+        $filters = $request->only([
+            'account_id', 'category_id', 'type', 'start_date', 'end_date',
+            'search', 'min_amount', 'max_amount', 'status', 'exclude_reference_prefix'
+        ]);
+
+        $output = $this->getSummaryUseCase->execute($userId, $filters);
+
+        return response()->json([
+            'data' => [
+                'income' => $output->income,
+                'expense' => $output->expense,
+            ],
+        ]);
     }
 }

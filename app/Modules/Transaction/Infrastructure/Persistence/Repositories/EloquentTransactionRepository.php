@@ -125,4 +125,61 @@ final class EloquentTransactionRepository implements TransactionRepositoryInterf
             }
         });
     }
+
+    /**
+     * @param  array<string, mixed>  $filters
+     * @return array{income: string, expense: string}
+     */
+    public function getSummaryForUser(int $userId, array $filters): array
+    {
+        $query = TransactionModel::query()
+            ->whereHas('account', fn ($q) => $q->where('user_id', $userId));
+
+        if (! empty($filters['account_id'])) {
+            $query->where('account_id', $filters['account_id']);
+        }
+        if (! empty($filters['category_id'])) {
+            $query->where('category_id', $filters['category_id']);
+        }
+        if (! empty($filters['type'])) {
+            $query->where('type', $filters['type']);
+        }
+        if (! empty($filters['search'])) {
+            $searchTerm = '%'.$filters['search'].'%';
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('description', 'like', $searchTerm)
+                    ->orWhere('reference', 'like', $searchTerm);
+            });
+        }
+        if (isset($filters['min_amount']) && $filters['min_amount'] !== '') {
+            $query->where('amount', '>=', $filters['min_amount']);
+        }
+        if (isset($filters['max_amount']) && $filters['max_amount'] !== '') {
+            $query->where('amount', '<=', $filters['max_amount']);
+        }
+        if (! empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+        if (! empty($filters['start_date'])) {
+            $query->whereDate('transaction_date', '>=', $filters['start_date']);
+        }
+        if (! empty($filters['end_date'])) {
+            $query->whereDate('transaction_date', '<=', $filters['end_date']);
+        }
+        if (! empty($filters['exclude_reference_prefix'])) {
+            $prefix = $filters['exclude_reference_prefix'] . '%';
+            $query->where(function ($q) use ($prefix) {
+                $q->whereNull('reference')
+                  ->orWhere('reference', 'not like', $prefix);
+            });
+        }
+
+        $income = (clone $query)->where('type', 'income')->sum('amount');
+        $expense = (clone $query)->where('type', 'expense')->sum('amount');
+
+        return [
+            'income' => (string) ($income ?: '0.00'),
+            'expense' => (string) ($expense ?: '0.00'),
+        ];
+    }
 }
