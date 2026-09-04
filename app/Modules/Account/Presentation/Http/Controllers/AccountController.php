@@ -12,6 +12,7 @@ use App\Modules\Account\Presentation\Http\Requests\UpdateAccountHttpRequest;
 use App\Modules\Account\Presentation\Http\Resources\AccountResource;
 use App\Modules\Audit\Application\Services\AuditService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 
@@ -29,9 +30,13 @@ final class AccountController
     {
         /** @var int $userId */
         $userId = auth()->id();
-        $outputs = $this->getAccountsUseCase->execute($userId);
+        
+        $accounts = \App\Modules\Account\Infrastructure\Persistence\Eloquent\Models\AccountModel::query()
+            ->with(['provider', 'investmentAssets'])
+            ->where('user_id', $userId)
+            ->get();
 
-        return AccountResource::collection(collect($outputs));
+        return AccountResource::collection($accounts);
     }
 
     public function store(StoreAccountHttpRequest $request): JsonResponse
@@ -49,15 +54,17 @@ final class AccountController
     {
         /** @var int $userId */
         $userId = auth()->id();
-        $accounts = $this->getAccountsUseCase->execute($userId);
+        
+        $account = \App\Modules\Account\Infrastructure\Persistence\Eloquent\Models\AccountModel::query()
+            ->with(['provider', 'investmentAssets'])
+            ->where('id', $id)
+            ->first();
 
-        $output = collect($accounts)->firstWhere('id', $id);
-
-        if (! $output || $output->userId !== $userId) {
+        if (! $account || $account->user_id !== $userId) {
             abort(404, 'Account not found.');
         }
 
-        return (new AccountResource($output))->response();
+        return (new AccountResource($account))->response();
     }
 
     public function update(UpdateAccountHttpRequest $request, string $id): JsonResponse
@@ -75,7 +82,7 @@ final class AccountController
         return (new AccountResource($output))->response();
     }
 
-    public function destroy(string $id): Response
+    public function destroy(Request $request, string $id): Response
     {
         /** @var int $userId */
         $userId = auth()->id();
@@ -83,6 +90,7 @@ final class AccountController
         $this->deleteUseCase->execute(
             accountId: AccountId::fromString($id),
             actingUserId: $userId,
+            reason: $request->input('reason'),
         );
 
         $this->auditService->log('account_deleted', 'account', $id);
