@@ -13,12 +13,15 @@ const PrivacyContext = createContext<PrivacyContextType>({
 export const usePrivacy = () => useContext(PrivacyContext);
 
 export const PrivacyProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [isPrivacyMode, setIsPrivacyMode] = useState(() => {
-        if (typeof window !== 'undefined') {
-            return localStorage.getItem('privacy_mode') === 'true';
+    // Always initialize as false to match SSR output, then sync from localStorage after mount
+    const [isPrivacyMode, setIsPrivacyMode] = useState(false);
+
+    useEffect(() => {
+        const stored = localStorage.getItem('privacy_mode');
+        if (stored === 'true') {
+            setIsPrivacyMode(true);
         }
-        return false;
-    });
+    }, []);
 
     const togglePrivacyMode = () => {
         setIsPrivacyMode((prev) => {
