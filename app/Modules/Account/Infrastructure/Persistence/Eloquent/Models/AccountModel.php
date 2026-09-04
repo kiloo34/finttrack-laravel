@@ -50,6 +50,8 @@ class AccountModel extends Model
         'provider_id',
         'initial_balance',
         'is_active',
+        'sync_frequency',
+        'deleted_reason',
     ];
 
     protected $casts = [
@@ -76,6 +78,12 @@ class AccountModel extends Model
     public function transactions(): HasMany
     {
         return $this->hasMany(TransactionModel::class, 'account_id');
+    }
+
+    /** @return HasMany<InvestmentAssetModel, $this> */
+    public function investmentAssets(): HasMany
+    {
+        return $this->hasMany(InvestmentAssetModel::class, 'account_id');
     }
 
     /** @return HasMany<LedgerEntryModel, $this> */
