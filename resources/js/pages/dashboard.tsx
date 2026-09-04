@@ -58,17 +58,18 @@ export default function Dashboard() {
         const fetchData = async () => {
             try {
                 const today = format(new Date(), 'yyyy-MM-dd');
-                const [accountsRes, transactionsRes] = await Promise.all([
+                const [accountsRes, transactionsRes, summaryRes] = await Promise.all([
                     axios.get<{ data: Account[] }>('/accounts'),
-                    axios.get<{ data: Transaction[] }>(`/transactions?start_date=${today}&end_date=${today}`)
+                    axios.get<{ data: Transaction[] }>(`/transactions?start_date=${today}&end_date=${today}`),
+                    axios.get<{ data: { income: string, expense: string } }>(`/transactions/summary?start_date=${today}&end_date=${today}&exclude_reference_prefix=REC-IN-`)
                 ]);
                 setAccounts(accountsRes.data.data);
                 
-                const allTodayTx = transactionsRes.data.data.filter((t: Transaction) => !t.reference?.startsWith('REC-IN-'));
-                setTodayIncome(allTodayTx.filter((t: Transaction) => t.type === 'income').reduce((sum: number, t: Transaction) => sum + Number(t.amount), 0));
-                setTodayExpense(allTodayTx.filter((t: Transaction) => t.type === 'expense').reduce((sum: number, t: Transaction) => sum + Number(t.amount), 0));
+                setTodayIncome(Number(summaryRes.data.data.income));
+                setTodayExpense(Number(summaryRes.data.data.expense));
                 
-                setTransactions(allTodayTx.slice(0, 10));
+                const displayTx = transactionsRes.data.data.filter((t: Transaction) => !t.reference?.startsWith('REC-IN-'));
+                setTransactions(displayTx);
             } catch (error) {
                 console.error("Failed to fetch dashboard data", error);
             } finally {

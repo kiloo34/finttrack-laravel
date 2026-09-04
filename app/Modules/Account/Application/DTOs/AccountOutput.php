@@ -17,6 +17,7 @@ final class AccountOutput
         public readonly ?string $providerName,
         public readonly float $initialBalance,
         public readonly bool $isActive,
+        public readonly string $syncFrequency,
         public readonly string $createdAt,
         public readonly string $updatedAt,
     ) {}
@@ -34,6 +35,7 @@ final class AccountOutput
             providerName: $account->getProviderName(),
             initialBalance: (float) $account->getInitialBalance(),
             isActive: $account->isActive(),
+            syncFrequency: $account->getSyncFrequency(),
             createdAt: $account->getCreatedAt()->format('Y-m-d H:i:s'),
             updatedAt: $account->getUpdatedAt()->format('Y-m-d H:i:s'),
         );

@@ -27,6 +27,7 @@ class UpdateAccountHttpRequest extends FormRequest
             'account_number' => ['nullable', 'string', 'max:50'],
             'provider_id' => ['nullable', 'integer', Rule::exists('providers', 'id')],
             'is_active' => ['nullable', 'boolean'],
+            'sync_frequency' => ['nullable', 'string', Rule::in(['manual', 'daily', 'weekly', 'monthly'])],
         ];
     }
 
@@ -39,6 +40,7 @@ class UpdateAccountHttpRequest extends FormRequest
             accountNumber: $this->input('account_number') ? $this->string('account_number')->toString() : null,
             providerId: $this->input('provider_id') !== null ? (int) $this->input('provider_id') : null,
             isActive: (bool) $this->input('is_active', true),
+            syncFrequency: $this->string('sync_frequency', 'manual')->toString(),
         );
     }
 }

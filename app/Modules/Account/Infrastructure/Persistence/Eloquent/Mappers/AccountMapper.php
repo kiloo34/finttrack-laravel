@@ -24,6 +24,7 @@ final class AccountMapper
             providerName: $model->provider ? (string) $model->provider->name : null,
             initialBalance: (string) $model->initial_balance,
             isActive: (bool) $model->is_active,
+            syncFrequency: (string) ($model->sync_frequency ?? 'manual'),
             createdAt: new \DateTimeImmutable($model->created_at?->toDateTimeString() ?? 'now'),
             updatedAt: new \DateTimeImmutable($model->updated_at?->toDateTimeString() ?? 'now'),
         );
@@ -45,6 +46,7 @@ final class AccountMapper
             'provider_id' => $account->getProviderId(),
             'initial_balance' => $account->getInitialBalance(),
             'is_active' => $account->isActive(),
+            'sync_frequency' => $account->getSyncFrequency(),
         ];
     }
 }

@@ -13,5 +13,6 @@ final class CreateAccountInput
         public readonly ?int $providerId,
         public readonly string $initialBalance,
         public readonly bool $isActive,
+        public readonly string $syncFrequency = 'manual',
     ) {}
 }

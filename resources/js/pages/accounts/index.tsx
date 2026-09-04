@@ -3,16 +3,26 @@ import { Head } from '@inertiajs/react';
 import axios from '@/lib/axios';
 import { Account } from '@/types/finance';
 import { Button } from '@/components/ui/button';
-import { Plus, Wallet, Edit2, ChevronDown, Building2, List, ArrowDownAZ, ArrowUpZA, HandCoins, CreditCard } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Plus, Wallet, Edit2, ChevronDown, Building2, List, ArrowDownAZ, ArrowUpZA, HandCoins, CreditCard, Trash2 } from 'lucide-react';
 import AccountModal from '@/components/accounts/AccountModal';
+import InvestmentAssetsModal from '@/components/accounts/InvestmentAssetsModal';
 import AmountDisplay from '@/components/AmountDisplay';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import { MoreHorizontal } from 'lucide-react';
 
 export default function AccountsIndex() {
     const [accounts, setAccounts] = useState<Account[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isMobileListModalOpen, setIsMobileListModalOpen] = useState(false);
+    const [isAssetsModalOpen, setIsAssetsModalOpen] = useState(false);
+    const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+    const [accountToDelete, setAccountToDelete] = useState<Account | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [deleteReason, setDeleteReason] = useState('');
     const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
     const [expandedProviders, setExpandedProviders] = useState<Record<string, boolean>>({});
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
@@ -42,6 +52,41 @@ export default function AccountsIndex() {
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setSelectedAccount(null);
+    };
+
+    const handleOpenAssetsModal = (account: Account) => {
+        setSelectedAccount(account);
+        setIsAssetsModalOpen(true);
+    };
+
+    const handleCloseAssetsModal = () => {
+        setIsAssetsModalOpen(false);
+        setSelectedAccount(null);
+    };
+
+    const handleDeleteClick = (account: Account, e: React.MouseEvent) => {
+        e.stopPropagation();
+        setAccountToDelete(account);
+        setIsDeleteConfirmOpen(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!accountToDelete) return;
+        setIsDeleting(true);
+        try {
+            await axios.delete(`/accounts/${accountToDelete.id}`, {
+                data: { reason: deleteReason }
+            });
+            setIsDeleteConfirmOpen(false);
+            setAccountToDelete(null);
+            setDeleteReason('');
+            fetchAccounts();
+        } catch (error: any) {
+            const msg = error?.response?.data?.message || 'Gagal menghapus akun.';
+            alert(msg);
+        } finally {
+            setIsDeleting(false);
+        }
     };
 
     const toggleExpand = (providerName: string, e: React.MouseEvent) => {
@@ -106,22 +151,45 @@ export default function AccountsIndex() {
                             className={`p-6 flex flex-row items-center justify-between transition-colors ${hasMultiple ? 'cursor-pointer hover:bg-muted/50' : ''}`}
                             onClick={(e) => hasMultiple && toggleExpand(providerName, e)}
                         >
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 rounded-lg bg-blue-50 text-blue-500">
+                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                                <div className="p-2 rounded-lg bg-blue-50 text-blue-500 shrink-0">
                                     <Building2 className="h-5 w-5" />
                                 </div>
-                                <div>
-                                    <h3 className="font-medium text-lg leading-none">{providerName}</h3>
-                                    <p className="text-sm text-muted-foreground mt-1">
+                                <div className="min-w-0 flex-1">
+                                    <h3 className="font-medium text-lg leading-none truncate" title={providerName}>{providerName}</h3>
+                                    <p className="text-sm text-muted-foreground mt-1 truncate">
                                         {group.accounts.length} {group.accounts.length === 1 ? 'Account' : 'Accounts'}
                                     </p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1 shrink-0 ml-4">
                                 {!hasMultiple && (
-                                    <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); handleOpenModal(group.accounts[0]); }}>
-                                        <Edit2 className="h-4 w-4" />
-                                    </Button>
+                                    <div className="flex items-center gap-1">
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                                                <Button variant="ghost" size="icon" className="h-8 w-8">
+                                                    <MoreHorizontal className="h-4 w-4" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                {group.accounts[0].type === 'investment' && (
+                                                    <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleOpenAssetsModal(group.accounts[0]); }}>
+                                                        <Wallet className="h-4 w-4 mr-2" />
+                                                        Portfolio
+                                                    </DropdownMenuItem>
+                                                )}
+                                                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleOpenModal(group.accounts[0]); }}>
+                                                    <Edit2 className="h-4 w-4 mr-2" />
+                                                    Edit Account
+                                                </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                                <DropdownMenuItem className="text-destructive focus:bg-destructive focus:text-destructive-foreground" onClick={(e) => handleDeleteClick(group.accounts[0], e as any)}>
+                                                    <Trash2 className="h-4 w-4 mr-2" />
+                                                    Hapus Akun
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </div>
                                 )}
                                 {hasMultiple && (
                                     <Button variant="ghost" size="icon" className="text-muted-foreground">
@@ -150,9 +218,32 @@ export default function AccountsIndex() {
                                                 <AmountDisplay amount={Number(account.current_balance)} />
                                             </div>
                                         </div>
-                                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); handleOpenModal(account); }}>
-                                            <Edit2 className="h-4 w-4" />
-                                        </Button>
+                                        <div className="flex items-center gap-1">
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                                                        <MoreHorizontal className="h-4 w-4" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    {account.type === 'investment' && (
+                                                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleOpenAssetsModal(account); }}>
+                                                            <Wallet className="h-4 w-4 mr-2" />
+                                                            Portfolio
+                                                        </DropdownMenuItem>
+                                                    )}
+                                                    <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleOpenModal(account); }}>
+                                                        <Edit2 className="h-4 w-4 mr-2" />
+                                                        Edit Account
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuSeparator />
+                                                    <DropdownMenuItem className="text-destructive focus:bg-destructive focus:text-destructive-foreground" onClick={(e) => handleDeleteClick(account, e as any)}>
+                                                        <Trash2 className="h-4 w-4 mr-2" />
+                                                        Hapus Akun
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -275,6 +366,57 @@ export default function AccountsIndex() {
                 onSuccess={fetchAccounts}
                 account={selectedAccount}
             />
+
+            <InvestmentAssetsModal
+                isOpen={isAssetsModalOpen}
+                onClose={handleCloseAssetsModal}
+                onSuccess={fetchAccounts}
+                account={selectedAccount}
+            />
+
+            {/* Delete Confirmation Dialog */}
+            <Dialog open={isDeleteConfirmOpen} onOpenChange={(open) => { 
+                if (!open) { 
+                    setIsDeleteConfirmOpen(false); 
+                    setAccountToDelete(null); 
+                    setDeleteReason('');
+                } 
+            }}>
+                <DialogContent className="sm:max-w-[400px]">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2 text-destructive">
+                            <Trash2 className="h-5 w-5" />
+                            Hapus Akun
+                        </DialogTitle>
+                        <DialogDescription className="pt-2">
+                            Apakah Anda yakin ingin menghapus akun <span className="font-semibold text-foreground">{accountToDelete?.name}</span>?
+                            <br />
+                            <span className="text-destructive text-xs mt-1 block">Akun yang memiliki transaksi tidak dapat dihapus.</span>
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="py-4">
+                        <Label htmlFor="reason" className="text-sm font-medium">
+                            Alasan Menghapus (Opsional)
+                        </Label>
+                        <Input 
+                            id="reason"
+                            value={deleteReason}
+                            onChange={(e) => setDeleteReason(e.target.value)}
+                            placeholder="Contoh: Akun sudah ditutup, Double input..."
+                            className="mt-1.5"
+                        />
+                    </div>
+                    <DialogFooter className="gap-2 mt-2">
+                        <Button variant="outline" onClick={() => { setIsDeleteConfirmOpen(false); setAccountToDelete(null); }} disabled={isDeleting}>
+                            Batal
+                        </Button>
+                        <Button variant="destructive" onClick={handleConfirmDelete} disabled={isDeleting}>
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            {isDeleting ? 'Menghapus...' : 'Ya, Hapus'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

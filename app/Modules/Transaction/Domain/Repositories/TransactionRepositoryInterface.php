@@ -19,4 +19,10 @@ interface TransactionRepositoryInterface
     public function paginateForUser(int $userId, array $filters, int $perPage = 15, int $page = 1): array;
 
     public function delete(int $id): void;
+
+    /**
+     * @param  array<string, mixed>  $filters
+     * @return array{income: string, expense: string}
+     */
+    public function getSummaryForUser(int $userId, array $filters): array;
 }

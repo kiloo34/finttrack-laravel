@@ -38,6 +38,7 @@ class AccountResource extends JsonResource
                     (string) $this->resource->initialBalance
                 ),
                 'is_active' => $this->resource->isActive,
+                'sync_frequency' => $this->resource->syncFrequency,
                 'created_at' => $this->resource->createdAt,
                 'updated_at' => $this->resource->updatedAt,
             ];
@@ -58,8 +59,10 @@ class AccountResource extends JsonResource
             'initial_balance' => (float) $model->initial_balance,
             'current_balance' => (float) $balanceService->calculateFromModel($model),
             'is_active' => (bool) $model->is_active,
+            'sync_frequency' => $model->sync_frequency ?? 'manual',
             'created_at' => $model->created_at,
             'updated_at' => $model->updated_at,
+            'investment_assets' => $model->relationLoaded('investmentAssets') ? $model->investmentAssets : [],
         ];
     }
 }

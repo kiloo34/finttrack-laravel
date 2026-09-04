@@ -24,6 +24,7 @@ final class CreateAccountUseCase
             providerId: $input->providerId,
             initialBalance: $input->initialBalance,
             isActive: $input->isActive,
+            syncFrequency: $input->syncFrequency,
         );
 
         $this->accountRepository->save($account);
