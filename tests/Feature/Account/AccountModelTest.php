@@ -32,6 +32,8 @@ test('account has correct fillable fields', function () {
         'provider_id',
         'initial_balance',
         'is_active',
+        'sync_frequency',
+        'deleted_reason',
     ]);
 });
 

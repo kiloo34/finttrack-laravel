@@ -167,10 +167,10 @@ final class EloquentTransactionRepository implements TransactionRepositoryInterf
             $query->whereDate('transaction_date', '<=', $filters['end_date']);
         }
         if (! empty($filters['exclude_reference_prefix'])) {
-            $prefix = $filters['exclude_reference_prefix'] . '%';
+            $prefix = $filters['exclude_reference_prefix'].'%';
             $query->where(function ($q) use ($prefix) {
                 $q->whereNull('reference')
-                  ->orWhere('reference', 'not like', $prefix);
+                    ->orWhere('reference', 'not like', $prefix);
             });
         }
 

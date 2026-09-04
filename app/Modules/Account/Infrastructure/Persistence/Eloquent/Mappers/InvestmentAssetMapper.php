@@ -25,6 +25,9 @@ final class InvestmentAssetMapper
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public static function toPersistence(InvestmentAsset $asset): array
     {
         return [

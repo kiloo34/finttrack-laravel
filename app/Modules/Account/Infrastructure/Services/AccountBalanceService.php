@@ -56,20 +56,27 @@ final class AccountBalanceService
     public function calculateFromModel(AccountModel $model, ?\DateTimeInterface $asOfDate = null): string
     {
         $cashBalance = $this->calculate($model->id, (string) $model->initial_balance, $asOfDate);
-        
+
         if ($model->type !== 'investment') {
             return $cashBalance;
         }
 
         $portfolioValue = '0.00';
         foreach ($model->investmentAssets as $asset) {
+            /** @var numeric-string $priceStr */
+            $priceStr = (string) $asset->current_market_price;
+
             if ($asset->type === 'stock' && $asset->lots !== null) {
                 // Stock: lots * 100 shares * price per share
                 $shares = bcmul((string) $asset->lots, '100', 0);
-                $assetValue = bcmul($shares, (string) $asset->current_market_price, 2);
+                /** @var numeric-string $sharesStr */
+                $sharesStr = $shares;
+                $assetValue = bcmul($sharesStr, $priceStr, 2);
             } else {
                 // Mutual fund / others: units * NAB
-                $assetValue = bcmul((string) $asset->units, (string) $asset->current_market_price, 2);
+                /** @var numeric-string $unitsStr */
+                $unitsStr = (string) $asset->units;
+                $assetValue = bcmul($unitsStr, $priceStr, 2);
             }
             $portfolioValue = bcadd($portfolioValue, $assetValue, 2);
         }

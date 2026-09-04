@@ -8,7 +8,7 @@ use Illuminate\Support\Collection;
 interface InvestmentAssetRepositoryInterface
 {
     public function findById(int $id): ?InvestmentAsset;
-    
+
     /**
      * @return Collection<int, InvestmentAsset>
      */

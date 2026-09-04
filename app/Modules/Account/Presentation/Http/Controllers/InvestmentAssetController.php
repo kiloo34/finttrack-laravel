@@ -21,7 +21,7 @@ class InvestmentAssetController extends Controller
     public function index(int $accountId): JsonResponse
     {
         $account = $this->accountRepository->findById(AccountId::fromString((string) $accountId));
-        if (!$account || $account->getUserId() !== auth()->id()) {
+        if (! $account || $account->getUserId() !== auth()->id()) {
             return response()->json(['message' => 'Account not found'], 404);
         }
 
@@ -45,7 +45,7 @@ class InvestmentAssetController extends Controller
         ]);
 
         $account = $this->accountRepository->findById(AccountId::fromString((string) $accountId));
-        if (!$account || $account->getUserId() !== auth()->id()) {
+        if (! $account || $account->getUserId() !== auth()->id()) {
             return response()->json(['message' => 'Account not found'], 404);
         }
 
@@ -78,7 +78,7 @@ class InvestmentAssetController extends Controller
         ]);
 
         $account = $this->accountRepository->findById(AccountId::fromString((string) $accountId));
-        if (!$account || $account->getUserId() !== auth()->id()) {
+        if (! $account || $account->getUserId() !== auth()->id()) {
             return response()->json(['message' => 'Account not found'], 404);
         }
 

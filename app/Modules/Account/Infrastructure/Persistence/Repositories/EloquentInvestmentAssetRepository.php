@@ -13,7 +13,7 @@ final class EloquentInvestmentAssetRepository implements InvestmentAssetReposito
     public function findById(int $id): ?InvestmentAsset
     {
         $model = InvestmentAssetModel::find($id);
-        
+
         if (! $model) {
             return null;
         }
@@ -31,7 +31,7 @@ final class EloquentInvestmentAssetRepository implements InvestmentAssetReposito
     public function save(InvestmentAsset $asset): void
     {
         $data = InvestmentAssetMapper::toPersistence($asset);
-        
+
         if ($asset->getId() === 0) {
             $model = InvestmentAssetModel::create($data);
         } else {

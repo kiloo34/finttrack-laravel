@@ -24,7 +24,7 @@ return new class extends Migration
             $table->timestamp('last_synced_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
-            
+
             $table->index('account_id');
         });
     }

@@ -4,9 +4,9 @@ namespace App\Modules\Account\Presentation\Http\Controllers;
 
 use App\Modules\Account\Application\UseCases\CreateAccountUseCase;
 use App\Modules\Account\Application\UseCases\DeleteAccountUseCase;
-use App\Modules\Account\Application\UseCases\GetAccountsUseCase;
 use App\Modules\Account\Application\UseCases\UpdateAccountUseCase;
 use App\Modules\Account\Domain\ValueObjects\AccountId;
+use App\Modules\Account\Infrastructure\Persistence\Eloquent\Models\AccountModel;
 use App\Modules\Account\Presentation\Http\Requests\StoreAccountHttpRequest;
 use App\Modules\Account\Presentation\Http\Requests\UpdateAccountHttpRequest;
 use App\Modules\Account\Presentation\Http\Resources\AccountResource;
@@ -22,7 +22,6 @@ final class AccountController
         private readonly CreateAccountUseCase $createUseCase,
         private readonly UpdateAccountUseCase $updateUseCase,
         private readonly DeleteAccountUseCase $deleteUseCase,
-        private readonly GetAccountsUseCase $getAccountsUseCase,
         private readonly AuditService $auditService,
     ) {}
 
@@ -30,8 +29,8 @@ final class AccountController
     {
         /** @var int $userId */
         $userId = auth()->id();
-        
-        $accounts = \App\Modules\Account\Infrastructure\Persistence\Eloquent\Models\AccountModel::query()
+
+        $accounts = AccountModel::query()
             ->with(['provider', 'investmentAssets'])
             ->where('user_id', $userId)
             ->get();
@@ -54,8 +53,8 @@ final class AccountController
     {
         /** @var int $userId */
         $userId = auth()->id();
-        
-        $account = \App\Modules\Account\Infrastructure\Persistence\Eloquent\Models\AccountModel::query()
+
+        $account = AccountModel::query()
             ->with(['provider', 'investmentAssets'])
             ->where('id', $id)
             ->first();

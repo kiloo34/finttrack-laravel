@@ -85,8 +85,8 @@ final class InvestmentAsset
     public function updateMarketPrice(string $newPrice): void
     {
         $this->currentMarketPrice = $newPrice;
-        $this->lastSyncedAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
+        $this->lastSyncedAt = new \DateTimeImmutable;
+        $this->updatedAt = new \DateTimeImmutable;
     }
 
     /**
@@ -96,11 +96,22 @@ final class InvestmentAsset
      */
     public function getPortfolioValue(): string
     {
+        /** @var numeric-string $priceStr */
+        $priceStr = $this->currentMarketPrice;
+
         if ($this->type === 'stock' && $this->lots !== null) {
             $shares = bcmul((string) $this->lots, '100', 0);
-            return bcmul($shares, $this->currentMarketPrice, 2);
+
+            /** @var numeric-string $sharesStr */
+            $sharesStr = $shares;
+
+            return bcmul($sharesStr, $priceStr, 2);
         }
-        return bcmul($this->units, $this->currentMarketPrice, 2);
+
+        /** @var numeric-string $unitsStr */
+        $unitsStr = $this->units;
+
+        return bcmul($unitsStr, $priceStr, 2);
     }
 
     // Getters
