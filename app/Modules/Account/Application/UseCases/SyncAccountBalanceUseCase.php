@@ -41,8 +41,8 @@ final class SyncAccountBalanceUseCase
 
         // Calculate current system balance
         $systemBalance = $this->accountBalanceService->calculate(
-            (int) $account->getId()->value(), 
-            $account->getInitialBalance(), 
+            (int) $account->getId()->value(),
+            $account->getInitialBalance(),
             $date
         );
 
