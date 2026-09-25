@@ -20,11 +20,17 @@ final class ProcessRecurringTransactionsUseCase
         $processedCount = 0;
 
         foreach ($dueTransactions as $recurring) {
-            try {
-                $this->processSingleUseCase->executeForEntity($recurring);
-                $processedCount++;
-            } catch (\Exception $e) {
-                Log::error('Failed to process recurring transaction ID '.$recurring->getId().': '.$e->getMessage());
+            while ($recurring->getNextRunDate() <= $today && $recurring->isActive()) {
+                try {
+                    $this->processSingleUseCase->executeForEntity($recurring);
+                    $processedCount++;
+                } catch (\LogicException $e) {
+                    // Transaction exists for this date, skipped to next run date. Log and continue loop.
+                    Log::info('Skipped recurring transaction ID '.$recurring->getId().' for date: '.$e->getMessage());
+                } catch (\Exception $e) {
+                    Log::error('Failed to process recurring transaction ID '.$recurring->getId().': '.$e->getMessage());
+                    break; // Break the while loop for this specific recurring transaction on hard errors
+                }
             }
         }
 

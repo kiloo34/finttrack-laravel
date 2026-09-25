@@ -10,4 +10,8 @@ Artisan::command('inspire', function () {
 // Process recurring transactions daily at midnight
 use Illuminate\Support\Facades\Schedule;
 
-Schedule::command('transactions:process-recurring')->dailyAt('09:50');
+// Schedule::command('transactions:process-recurring')->dailyAt('09:00');
+
+Schedule::command('transactions:process-recurring')
+    ->everyTwoHours()
+    ->withoutOverlapping();

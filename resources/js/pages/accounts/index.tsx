@@ -8,10 +8,12 @@ import { Label } from '@/components/ui/label';
 import { Plus, Wallet, Edit2, ChevronDown, Building2, List, ArrowDownAZ, ArrowUpZA, HandCoins, CreditCard, Trash2 } from 'lucide-react';
 import AccountModal from '@/components/accounts/AccountModal';
 import InvestmentAssetsModal from '@/components/accounts/InvestmentAssetsModal';
+import SyncBalanceModal from '@/components/accounts/SyncBalanceModal';
 import AmountDisplay from '@/components/AmountDisplay';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { MoreHorizontal, RefreshCw } from 'lucide-react';
 
 export default function AccountsIndex() {
     const [accounts, setAccounts] = useState<Account[]>([]);
@@ -19,6 +21,7 @@ export default function AccountsIndex() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isMobileListModalOpen, setIsMobileListModalOpen] = useState(false);
     const [isAssetsModalOpen, setIsAssetsModalOpen] = useState(false);
+    const [isSyncBalanceModalOpen, setIsSyncBalanceModalOpen] = useState(false);
     const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
     const [accountToDelete, setAccountToDelete] = useState<Account | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -64,6 +67,16 @@ export default function AccountsIndex() {
         setSelectedAccount(null);
     };
 
+    const handleOpenSyncBalanceModal = (account: Account) => {
+        setSelectedAccount(account);
+        setIsSyncBalanceModalOpen(true);
+    };
+
+    const handleCloseSyncBalanceModal = () => {
+        setIsSyncBalanceModalOpen(false);
+        setSelectedAccount(null);
+    };
+
     const handleDeleteClick = (account: Account, e: React.MouseEvent) => {
         e.stopPropagation();
         setAccountToDelete(account);
@@ -100,6 +113,10 @@ export default function AccountsIndex() {
     const toggleSort = () => {
         setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
     };
+
+    const todayDate = new Date().getDate();
+    const isSyncAllowed = todayDate >= 25 || todayDate <= 5;
+    const syncTooltipMsg = 'Sync balance hanya tersedia tanggal 25 hingga tanggal 5 setiap bulannya.';
 
     const totalBalance = accounts.reduce((acc, account) => acc + Number(account.current_balance), 0);
     const totalDebt = accounts.filter(a => a.type === 'debt').reduce((acc, account) => acc + Number(account.current_balance), 0);
@@ -182,6 +199,29 @@ export default function AccountsIndex() {
                                                     <Edit2 className="h-4 w-4 mr-2" />
                                                     Edit Account
                                                 </DropdownMenuItem>
+                                                <TooltipProvider>
+                                                    <Tooltip delayDuration={300}>
+                                                        <TooltipTrigger asChild>
+                                                            <div>
+                                                                <DropdownMenuItem 
+                                                                    disabled={!isSyncAllowed}
+                                                                    onClick={(e) => { 
+                                                                        e.stopPropagation(); 
+                                                                        if (isSyncAllowed) handleOpenSyncBalanceModal(group.accounts[0]); 
+                                                                    }}
+                                                                >
+                                                                    <RefreshCw className="h-4 w-4 mr-2" />
+                                                                    Sync Balance
+                                                                </DropdownMenuItem>
+                                                            </div>
+                                                        </TooltipTrigger>
+                                                        {!isSyncAllowed && (
+                                                            <TooltipContent side="left">
+                                                                <p>{syncTooltipMsg}</p>
+                                                            </TooltipContent>
+                                                        )}
+                                                    </Tooltip>
+                                                </TooltipProvider>
                                                 <DropdownMenuSeparator />
                                                 <DropdownMenuItem className="text-destructive focus:bg-destructive focus:text-destructive-foreground" onClick={(e) => handleDeleteClick(group.accounts[0], e as any)}>
                                                     <Trash2 className="h-4 w-4 mr-2" />
@@ -236,6 +276,29 @@ export default function AccountsIndex() {
                                                         <Edit2 className="h-4 w-4 mr-2" />
                                                         Edit Account
                                                     </DropdownMenuItem>
+                                                    <TooltipProvider>
+                                                        <Tooltip delayDuration={300}>
+                                                            <TooltipTrigger asChild>
+                                                                <div>
+                                                                    <DropdownMenuItem 
+                                                                        disabled={!isSyncAllowed}
+                                                                        onClick={(e) => { 
+                                                                            e.stopPropagation(); 
+                                                                            if (isSyncAllowed) handleOpenSyncBalanceModal(account); 
+                                                                        }}
+                                                                    >
+                                                                        <RefreshCw className="h-4 w-4 mr-2" />
+                                                                        Sync Balance
+                                                                    </DropdownMenuItem>
+                                                                </div>
+                                                            </TooltipTrigger>
+                                                            {!isSyncAllowed && (
+                                                                <TooltipContent side="left">
+                                                                    <p>{syncTooltipMsg}</p>
+                                                                </TooltipContent>
+                                                            )}
+                                                        </Tooltip>
+                                                    </TooltipProvider>
                                                     <DropdownMenuSeparator />
                                                     <DropdownMenuItem className="text-destructive focus:bg-destructive focus:text-destructive-foreground" onClick={(e) => handleDeleteClick(account, e as any)}>
                                                         <Trash2 className="h-4 w-4 mr-2" />
@@ -370,6 +433,13 @@ export default function AccountsIndex() {
             <InvestmentAssetsModal
                 isOpen={isAssetsModalOpen}
                 onClose={handleCloseAssetsModal}
+                onSuccess={fetchAccounts}
+                account={selectedAccount}
+            />
+
+            <SyncBalanceModal
+                isOpen={isSyncBalanceModalOpen}
+                onClose={handleCloseSyncBalanceModal}
                 onSuccess={fetchAccounts}
                 account={selectedAccount}
             />

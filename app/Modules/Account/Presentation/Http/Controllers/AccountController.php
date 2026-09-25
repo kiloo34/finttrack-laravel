@@ -4,10 +4,12 @@ namespace App\Modules\Account\Presentation\Http\Controllers;
 
 use App\Modules\Account\Application\UseCases\CreateAccountUseCase;
 use App\Modules\Account\Application\UseCases\DeleteAccountUseCase;
+use App\Modules\Account\Application\UseCases\SyncAccountBalanceUseCase;
 use App\Modules\Account\Application\UseCases\UpdateAccountUseCase;
 use App\Modules\Account\Domain\ValueObjects\AccountId;
 use App\Modules\Account\Infrastructure\Persistence\Eloquent\Models\AccountModel;
 use App\Modules\Account\Presentation\Http\Requests\StoreAccountHttpRequest;
+use App\Modules\Account\Presentation\Http\Requests\SyncAccountBalanceHttpRequest;
 use App\Modules\Account\Presentation\Http\Requests\UpdateAccountHttpRequest;
 use App\Modules\Account\Presentation\Http\Resources\AccountResource;
 use App\Modules\Audit\Application\Services\AuditService;
@@ -95,5 +97,28 @@ final class AccountController
         $this->auditService->log('account_deleted', 'account', $id);
 
         return response()->noContent();
+    }
+
+    public function syncBalance(
+        SyncAccountBalanceHttpRequest $request,
+        string $id,
+        SyncAccountBalanceUseCase $syncUseCase
+    ): JsonResponse {
+        /** @var int $userId */
+        $userId = auth()->id();
+
+        // Ensure the account belongs to the user
+        $account = AccountModel::where('id', $id)->where('user_id', $userId)->first();
+        if (! $account) {
+            abort(404, 'Account not found.');
+        }
+
+        $syncUseCase->execute(
+            accountId: $id,
+            actualBalance: $request->input('actual_balance'),
+            categoryId: (int) $request->input('category_id')
+        );
+
+        return response()->json(['message' => 'Account balance synced successfully.']);
     }
 }

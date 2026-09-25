@@ -249,3 +249,15 @@ deploy_fly_io:
     - flyctl deploy --remote-only
   rules:
     - if: '$CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE != "schedule"'
+
+sync_to_github:
+  stage: deploy
+  image: alpine/git
+  script:
+    - git config --global user.name "${GITLAB_USER_NAME}"
+    - git config --global user.email "${GITLAB_USER_EMAIL}"
+    - git remote add github https://${GITHUB_USERNAME}:${GITHUB_PAT}@github.com/${GITHUB_USERNAME}/${GITHUB_REPO}.git
+    - git checkout $CI_COMMIT_BRANCH
+    - git push github $CI_COMMIT_BRANCH
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE != "schedule"'
