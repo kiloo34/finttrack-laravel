@@ -10,8 +10,10 @@ use App\Modules\Transaction\Providers\TransactionServiceProvider;
 use App\Modules\Transfer\Providers\TransferServiceProvider;
 use App\Modules\User\Providers\UserServiceProvider;
 use Carbon\CarbonImmutable;
+use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -37,6 +39,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Gate::define('viewPulse', function (User $user) {
+        // Ganti dengan email admin Anda
+            return $user->email === 'robileksono@gmail.com';
+        });
         $this->configureDefaults();
     }
 
