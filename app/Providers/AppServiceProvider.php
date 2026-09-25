@@ -44,6 +44,9 @@ class AppServiceProvider extends ServiceProvider
             return $user->email === 'robileksono@gmail.com';
         });
         $this->configureDefaults();
+        Gate::define('viewPulse', function (User $user) {
+            return $user->email === 'robileksono@gmail.com';
+        });
     }
 
     /**
