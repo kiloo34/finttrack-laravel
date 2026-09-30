@@ -55,7 +55,11 @@ final class AccountBalanceService
      */
     public function calculateFromModel(AccountModel $model, ?\DateTimeInterface $asOfDate = null): string
     {
-        $cashBalance = $this->calculate($model->id, (string) $model->initial_balance, $asOfDate);
+        // If an asOfDate is provided, calculate dynamically from the ledger.
+        // Otherwise, use the fast cached current_balance.
+        $cashBalance = $asOfDate 
+            ? $this->calculate($model->id, (string) $model->initial_balance, $asOfDate)
+            : (string) $model->current_balance;
 
         if ($model->type !== 'investment') {
             return $cashBalance;
@@ -91,7 +95,9 @@ final class AccountBalanceService
      */
     public function totalForUser(int $userId): string
     {
-        $accounts = AccountModel::where('user_id', $userId)
+        // Eager load investmentAssets to prevent N+1
+        $accounts = AccountModel::with('investmentAssets')
+            ->where('user_id', $userId)
             ->where('is_active', true)
             ->get();
 
@@ -104,5 +110,36 @@ final class AccountBalanceService
 
         /** @var numeric-string $total */
         return $total;
+    }
+
+    /**
+     * Recalculates the current balance for an account from the ledger and updates the cache.
+     */
+    public function recalculateAndUpdate(int $accountId): void
+    {
+        $account = DB::table('accounts')->where('id', $accountId)->first();
+        if (! $account) {
+            return;
+        }
+
+        $credits = DB::table('ledger_entries')
+            ->where('account_id', $accountId)
+            ->where('direction', 'credit')
+            ->sum('amount');
+
+        $debits = DB::table('ledger_entries')
+            ->where('account_id', $accountId)
+            ->where('direction', 'debit')
+            ->sum('amount');
+
+        /** @var numeric-string $diff */
+        $diff = bcsub((string) $credits, (string) $debits, 2);
+        
+        /** @var numeric-string $newBalance */
+        $newBalance = bcadd((string) $account->initial_balance, $diff, 2);
+
+        DB::table('accounts')
+            ->where('id', $accountId)
+            ->update(['current_balance' => $newBalance]);
     }
 }

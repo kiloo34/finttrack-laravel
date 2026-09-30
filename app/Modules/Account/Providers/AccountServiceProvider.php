@@ -26,5 +26,18 @@ class AccountServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadRoutesFrom(__DIR__.'/../Presentation/Http/routes.php');
+
+        \Illuminate\Support\Facades\Event::listen(
+            \App\Modules\Transaction\Domain\Events\TransactionCreated::class,
+            [\App\Modules\Account\Application\Listeners\SyncAccountBalanceOnTransaction::class, 'handleCreated']
+        );
+        \Illuminate\Support\Facades\Event::listen(
+            \App\Modules\Transaction\Domain\Events\TransactionUpdated::class,
+            [\App\Modules\Account\Application\Listeners\SyncAccountBalanceOnTransaction::class, 'handleUpdated']
+        );
+        \Illuminate\Support\Facades\Event::listen(
+            \App\Modules\Transaction\Domain\Events\TransactionDeleted::class,
+            [\App\Modules\Account\Application\Listeners\SyncAccountBalanceOnTransaction::class, 'handleDeleted']
+        );
     }
 }
