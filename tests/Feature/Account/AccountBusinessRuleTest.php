@@ -65,5 +65,7 @@ test('account balance service calculates historical balance correctly', function
     expect($service->calculateFromModel($account, $historicalDate2))->toBe('800.00');
 
     // Current balance: All should count. (1300)
+    $service->recalculateAndUpdate($account->id);
+    $account->refresh();
     expect($service->calculateFromModel($account))->toBe('1300.00');
 });

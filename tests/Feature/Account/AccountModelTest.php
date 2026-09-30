@@ -31,6 +31,7 @@ test('account has correct fillable fields', function () {
         'account_number',
         'provider_id',
         'initial_balance',
+        'current_balance',
         'is_active',
         'sync_frequency',
         'deleted_reason',

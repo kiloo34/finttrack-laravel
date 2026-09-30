@@ -23,7 +23,7 @@ test('it deletes ledger entries associated with the transaction', function () {
 
     expect(LedgerEntryModel::count())->toBe(1);
 
-    $event = new TransactionDeleted(transactionId: $transaction->id);
+    $event = new TransactionDeleted(transactionId: $transaction->id, accountId: $account->id);
 
     $listener = new DeleteLedgerOnTransactionDeleted;
     $listener->handle($event);

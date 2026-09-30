@@ -49,6 +49,7 @@ class AccountModel extends Model
         'account_number',
         'provider_id',
         'initial_balance',
+        'current_balance',
         'is_active',
         'sync_frequency',
         'deleted_reason',
@@ -56,6 +57,7 @@ class AccountModel extends Model
 
     protected $casts = [
         'initial_balance' => 'decimal:2',
+        'current_balance' => 'decimal:2',
         'is_active' => 'boolean',
     ];
 
