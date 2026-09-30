@@ -28,10 +28,11 @@ class BackfillAccountBalances extends Command
     public function handle(): void
     {
         $this->info('Starting account balance backfill...');
-        
+
         $accounts = AccountModel::all();
         if ($accounts->isEmpty()) {
             $this->info('No accounts found.');
+
             return;
         }
 
@@ -48,8 +49,16 @@ class BackfillAccountBalances extends Command
                 ->where('direction', 'debit')
                 ->sum('amount');
 
-            $diff = bcsub((string) $credits, (string) $debits, 2);
-            $newBalance = bcadd((string) $account->initial_balance, $diff, 2);
+            $creditsStr = (string) $credits;
+            $debitsStr = (string) $debits;
+            $initialStr = (string) $account->initial_balance;
+
+            if (! is_numeric($initialStr)) {
+                throw new \RuntimeException('Invalid initial balance encountered during backfill.');
+            }
+
+            $diff = bcsub($creditsStr, $debitsStr, 2);
+            $newBalance = bcadd($initialStr, $diff, 2);
 
             DB::table('accounts')
                 ->where('id', $account->id)

@@ -2,10 +2,15 @@
 
 namespace App\Modules\Account\Providers;
 
+use App\Modules\Account\Application\Listeners\SyncAccountBalanceOnTransaction;
 use App\Modules\Account\Domain\Repositories\AccountRepositoryInterface;
 use App\Modules\Account\Domain\Repositories\InvestmentAssetRepositoryInterface;
 use App\Modules\Account\Infrastructure\Persistence\Repositories\EloquentAccountRepository;
 use App\Modules\Account\Infrastructure\Persistence\Repositories\EloquentInvestmentAssetRepository;
+use App\Modules\Transaction\Domain\Events\TransactionCreated;
+use App\Modules\Transaction\Domain\Events\TransactionDeleted;
+use App\Modules\Transaction\Domain\Events\TransactionUpdated;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
 class AccountServiceProvider extends ServiceProvider
@@ -27,17 +32,17 @@ class AccountServiceProvider extends ServiceProvider
     {
         $this->loadRoutesFrom(__DIR__.'/../Presentation/Http/routes.php');
 
-        \Illuminate\Support\Facades\Event::listen(
-            \App\Modules\Transaction\Domain\Events\TransactionCreated::class,
-            [\App\Modules\Account\Application\Listeners\SyncAccountBalanceOnTransaction::class, 'handleCreated']
+        Event::listen(
+            TransactionCreated::class,
+            [SyncAccountBalanceOnTransaction::class, 'handleCreated']
         );
-        \Illuminate\Support\Facades\Event::listen(
-            \App\Modules\Transaction\Domain\Events\TransactionUpdated::class,
-            [\App\Modules\Account\Application\Listeners\SyncAccountBalanceOnTransaction::class, 'handleUpdated']
+        Event::listen(
+            TransactionUpdated::class,
+            [SyncAccountBalanceOnTransaction::class, 'handleUpdated']
         );
-        \Illuminate\Support\Facades\Event::listen(
-            \App\Modules\Transaction\Domain\Events\TransactionDeleted::class,
-            [\App\Modules\Account\Application\Listeners\SyncAccountBalanceOnTransaction::class, 'handleDeleted']
+        Event::listen(
+            TransactionDeleted::class,
+            [SyncAccountBalanceOnTransaction::class, 'handleDeleted']
         );
     }
 }

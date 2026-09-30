@@ -140,7 +140,7 @@ final class Transaction
 
     public function markAsDeleted(): void
     {
-        $this->recordEvent(new TransactionDeleted($this->id));
+        $this->recordEvent(new TransactionDeleted($this->id, $this->accountId));
     }
 
     public function ledgerDirection(): string

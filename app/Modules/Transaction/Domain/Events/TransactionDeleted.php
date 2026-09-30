@@ -9,7 +9,8 @@ final class TransactionDeleted implements DomainEventInterface
     private \DateTimeImmutable $occurredAt;
 
     public function __construct(
-        public readonly int $transactionId
+        public readonly int $transactionId,
+        public readonly int $accountId
     ) {
         $this->occurredAt = new \DateTimeImmutable;
     }

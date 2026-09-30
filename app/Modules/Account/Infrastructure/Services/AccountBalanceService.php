@@ -57,7 +57,7 @@ final class AccountBalanceService
     {
         // If an asOfDate is provided, calculate dynamically from the ledger.
         // Otherwise, use the fast cached current_balance.
-        $cashBalance = $asOfDate 
+        $cashBalance = $asOfDate
             ? $this->calculate($model->id, (string) $model->initial_balance, $asOfDate)
             : (string) $model->current_balance;
 
@@ -132,11 +132,16 @@ final class AccountBalanceService
             ->where('direction', 'debit')
             ->sum('amount');
 
-        /** @var numeric-string $diff */
-        $diff = bcsub((string) $credits, (string) $debits, 2);
-        
-        /** @var numeric-string $newBalance */
-        $newBalance = bcadd((string) $account->initial_balance, $diff, 2);
+        $creditsStr = (string) $credits;
+        $debitsStr = (string) $debits;
+        $initialStr = (string) $account->initial_balance;
+
+        if (! is_numeric($initialStr)) {
+            throw new \RuntimeException('Invalid initial balance encountered during balance calculation.');
+        }
+
+        $diff = bcsub($creditsStr, $debitsStr, 2);
+        $newBalance = bcadd($initialStr, $diff, 2);
 
         DB::table('accounts')
             ->where('id', $accountId)

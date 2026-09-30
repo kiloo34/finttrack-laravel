@@ -7,7 +7,6 @@ use App\Modules\Transaction\Domain\Events\TransactionCreated;
 use App\Modules\Transaction\Domain\Events\TransactionDeleted;
 use App\Modules\Transaction\Domain\Events\TransactionUpdated;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 
 /**
  * Listens for transaction events and recalculates the account balance cache.
