@@ -72,7 +72,7 @@ test('balance formula: initial + credits - debits', function () {
     $service = new AccountBalanceService;
     $service->recalculateAndUpdate($account->id);
     $account->refresh();
-    
+
     expect($service->calculateFromModel($account))->toBe('3000000.00');
 });
 
