@@ -9,6 +9,7 @@ use App\Modules\Transaction\Application\UseCases\GetTransactionByIdUseCase;
 use App\Modules\Transaction\Application\UseCases\GetTransactionSummaryUseCase;
 use App\Modules\Transaction\Application\UseCases\GetTransactionsUseCase;
 use App\Modules\Transaction\Application\UseCases\UpdateTransactionUseCase;
+use App\Modules\Transaction\Infrastructure\Persistence\Eloquent\Models\TransactionModel;
 use App\Modules\Transaction\Presentation\Http\Requests\StoreTransactionHttpRequest;
 use App\Modules\Transaction\Presentation\Http\Requests\UpdateTransactionHttpRequest;
 use App\Modules\Transaction\Presentation\Http\Resources\TransactionResource;
@@ -16,6 +17,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 final class TransactionController
 {
@@ -120,6 +123,41 @@ final class TransactionController
             'data' => [
                 'income' => $output->income,
                 'expense' => $output->expense,
+            ],
+        ]);
+    }
+
+    public function uploadAttachment(Request $request, int $id): JsonResponse
+    {
+        $request->validate([
+            'attachment' => 'required|file|image|mimes:jpeg,png,jpg,webp|max:5120',
+        ]);
+
+        $transaction = TransactionModel::find($id);
+
+        if (! $transaction) {
+            abort(404, 'Transaction not found.');
+        }
+
+        if ($transaction->account?->user_id !== (int) auth()->id()) {
+            abort(403, 'Unauthorized.');
+        }
+
+        /** @var UploadedFile $file */
+        $file = $request->file('attachment');
+        $path = Storage::disk('public')->putFile('attachments', $file);
+
+        $url = Storage::disk('public')->url($path);
+
+        $transaction->update([
+            'attachment_url' => $url,
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Attachment uploaded successfully',
+            'data' => [
+                'attachment_url' => $url,
             ],
         ]);
     }

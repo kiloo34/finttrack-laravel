@@ -25,6 +25,7 @@ use Illuminate\Validation\ValidationException;
  * @property string|null $description
  * @property string|null $reference
  * @property string $status
+ * @property string|null $attachment_url
  */
 class TransactionModel extends Model
 {
@@ -48,6 +49,7 @@ class TransactionModel extends Model
         'description',
         'reference',
         'status',
+        'attachment_url',
     ];
 
     protected $casts = [

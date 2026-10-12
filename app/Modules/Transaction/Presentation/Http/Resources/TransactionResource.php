@@ -28,6 +28,7 @@ class TransactionResource extends JsonResource
             'status' => $output->status,
             'account_id' => $output->accountId,
             'category_id' => $output->categoryId,
+            'attachment_url' => $output->attachmentUrl,
             'created_at' => $output->createdAt,
             'updated_at' => $output->updatedAt,
         ];

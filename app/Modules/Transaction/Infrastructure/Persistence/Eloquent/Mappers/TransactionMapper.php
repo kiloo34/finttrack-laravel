@@ -23,6 +23,7 @@ final class TransactionMapper
             status: TransactionStatus::from($model->status),
             createdAt: new \DateTimeImmutable($model->created_at?->toDateTimeString() ?? 'now'),
             updatedAt: new \DateTimeImmutable($model->updated_at?->toDateTimeString() ?? 'now'),
+            attachmentUrl: $model->attachment_url,
         );
     }
 
@@ -41,6 +42,7 @@ final class TransactionMapper
             'description' => $transaction->getDescription(),
             'reference' => $transaction->getReference(),
             'status' => $transaction->getStatus()->value,
+            'attachment_url' => $transaction->getAttachmentUrl(),
         ];
     }
 }

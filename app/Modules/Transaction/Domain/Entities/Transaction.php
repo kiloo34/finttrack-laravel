@@ -28,6 +28,7 @@ final class Transaction
         private TransactionStatus $status,
         private readonly \DateTimeImmutable $createdAt,
         private \DateTimeImmutable $updatedAt,
+        private ?string $attachmentUrl = null,
     ) {}
 
     public static function create(
@@ -40,6 +41,7 @@ final class Transaction
         ?string $description = null,
         ?string $reference = null,
         TransactionStatus $status = TransactionStatus::Completed,
+        ?string $attachmentUrl = null,
     ): self {
         $now = new \DateTimeImmutable;
 
@@ -56,6 +58,7 @@ final class Transaction
             status: $status,
             createdAt: $now,
             updatedAt: $now,
+            attachmentUrl: $attachmentUrl,
         );
     }
 
@@ -72,6 +75,7 @@ final class Transaction
         TransactionStatus $status,
         \DateTimeImmutable $createdAt,
         \DateTimeImmutable $updatedAt,
+        ?string $attachmentUrl = null,
     ): self {
         return new self(...func_get_args());
     }
@@ -219,5 +223,10 @@ final class Transaction
     public function getUpdatedAt(): \DateTimeImmutable
     {
         return $this->updatedAt;
+    }
+
+    public function getAttachmentUrl(): ?string
+    {
+        return $this->attachmentUrl;
     }
 }

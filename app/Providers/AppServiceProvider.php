@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Modules\Account\Providers\AccountServiceProvider;
 use App\Modules\Audit\Providers\AuditServiceProvider;
+use App\Modules\Budget\Providers\BudgetServiceProvider;
 use App\Modules\Category\Providers\CategoryServiceProvider;
 use App\Modules\Ledger\Providers\LedgerServiceProvider;
 use App\Modules\Transaction\Providers\TransactionServiceProvider;
@@ -32,6 +33,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->register(CategoryServiceProvider::class);
         $this->app->register(TransactionServiceProvider::class);
         $this->app->register(TransferServiceProvider::class);
+        $this->app->register(BudgetServiceProvider::class);
     }
 
     /**

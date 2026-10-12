@@ -19,6 +19,7 @@ final class TransactionOutput
         public readonly string $status,
         public readonly string $createdAt,
         public readonly string $updatedAt,
+        public readonly ?string $attachmentUrl = null,
     ) {}
 
     public static function fromDomain(Transaction $transaction): self
@@ -36,6 +37,7 @@ final class TransactionOutput
             status: $transaction->getStatus()->value,
             createdAt: $transaction->getCreatedAt()->format('Y-m-d H:i:s'),
             updatedAt: $transaction->getUpdatedAt()->format('Y-m-d H:i:s'),
+            attachmentUrl: $transaction->getAttachmentUrl(),
         );
     }
 }
